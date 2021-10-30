@@ -29,7 +29,7 @@ loadAllImages();
 
 
 function start() {
-    moveTheWorm('up', 100, 400)
+    moveTheWorm()
 }
 
 
@@ -82,88 +82,69 @@ function getNextFreeSpace(x, y, allWorms) {
 const allWormsMoving = [];
 function createWorms(amount) {
     for(let i = 0; i < amount; i++) {
-        const worm1 = new Worm(x, y+(i*100), 120);
+        const worm1 = new Worm(0, 100+(i*100), 120);
         worm1.buildWormNew();
         allWormsMoving.push(worm1)
     }
 }
 
-let x = 300;
-let incX = 1;
+createWorms(3);
 
+
+let incX = 1;
 let y = 100;
 
-const worm1 = new Worm(x, y, 120);
-worm1.buildWormNew();
-
-let colidingAproved = true;
-
-
-
-function moveTheWorm(goUpOrDown = 'down', targetY=0, startX=0) {
+function moveTheWorm() {
 
     let intervallID = setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         const worms = createPark();
 
-
         allWormsMoving.forEach(worm => {
+            let coliding = false;
+            let collisionX = 0;
+    
+            for(let i = 0; i < worms.length; i++) {
+                const col1 = worms[i].collisionBody;
+                const col2 = worm.collisionBody;
+                [coliding, collisionX] = checkForCollision(col1, col2);
 
+                if(coliding == true) {
+                    break;
+                };
+            }
 
+            if(coliding && !worm.animationPlaying) {
+                worm.startX = collisionX;
+                worm.target = getNextFreeSpace(worm.x, worm.y, worms)
 
-            
-        })
+                if(worm.y < worm.target) {
+                    worm.goUpOrDown = 'down'
+                }
+                else {
+                    worm.goUpOrDown = 'up'
+                }
 
-        let coliding = false;
-        let collisionX = 0;
-
-        for(let i = 0; i < worms.length; i++) {
-            const col1 = worms[i].collisionBody;
-            const col2 = worm1.collisionBody;
-            [coliding, collisionX] = checkForCollision(col1, col2);
-
-            if(coliding == true) {
-                break;
-            };
-        }
-
-        if(coliding && colidingAproved) {
-            const target = getNextFreeSpace(worm1.x, worm1.y, worms)
-
-            startX = collisionX;
-            targetY = target;
-
-            if(worm1.y < targetY) {
-                goUpOrDown = 'down'
+                worm.animationPlaying = true;
+            } 
+    
+            if(worm.goUpOrDown === 'down') {
+                worm.goDown(worm.x+=incX, worm.y, worm.target, worm.startX);
+                worm.startX -= 5;
+            } 
+            else if (worm.goUpOrDown === 'up') {
+                worm.goUp(worm.x+=incX, worm.y, worm.target, worm.startX);
+                worm.startX -= 5;
             }
             else {
-                goUpOrDown = 'up'
+                worm.updateNewWorm(worm.x+=incX, worm.y);
             }
-
-            colidingAproved = false;
-            console.log({ collisionX, targetY})
-        } 
-
-        if(goUpOrDown === 'down') {
-            worm1.goDown(x+=incX, y, targetY, startX);
-            startX -= 5;
-        } 
-        else if (goUpOrDown === 'up') {
-            worm1.goUp(x+=incX, y, targetY, startX);
-            startX -= 5;
-        }
-        else {
-            worm1.updateNewWorm(x+=incX, y);
-        }
-
-
-        if(worm1.y !== y && worm1.y == targetY) {
-            console.log('animation finished');
-            clearInterval(intervallID)
-            moveTheWorm('', targetY);
-            y = worm1.y;
-            colidingAproved = true;
-        } 
+    
+    
+            if(worm.y == worm.target) {
+                worm.animationPlaying = false;
+            } 
+        })
 
     }, 10);
 }

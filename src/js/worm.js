@@ -7,8 +7,12 @@ class Worm {
         this.targetY = 0;
         this.startX = 0;
 
+
         this.bodyParts = [];
         this.collisionBody = null;
+        this.animationPlaying = false;
+        this.target = null;
+        this.goUpOrDown = '';
     }
 
     getSize() {
@@ -59,7 +63,7 @@ class Worm {
 
     goUp(x, y, amount, startX) {
         this.x = x;
-
+        
         this.bodyParts.forEach((bodyPart, index) => {
             bodyPart.goUp(x, amount, startX)
 
