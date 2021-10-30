@@ -1,10 +1,11 @@
 body, html {
     height: 100%;
     width: 100%;
-    background-color: antiquewhite;
+    background-color: rgb(63, 63, 63);
     margin: 0px !important;
     padding: 0px !important;
-
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
 }
 
 * {
@@ -24,9 +25,11 @@ body, html {
     padding: 0;
 }
 .bottom-container {
+    z-index: 5;
     display: flex;
     justify-content: center;
     height: 45%;
+    filter: drop-shadow(0 -50px 100px rgba(0, 0, 0, 0.568));
 }
 .top {
     position: relative;
@@ -36,45 +39,113 @@ body, html {
     background-color: aqua;
 }
 .bottom-left {
-    width: 50%;
-    background-color: aquamarine;
+    width: 35%;
+    background-color: rgb(71, 71, 71);
+    padding: 20px;
+    overflow-y: auto;
+}
+.bottom-left * {
+    padding: 5px;
 }
 .bottom-right {
-    width: 50%;
-    background-color: cadetblue;
+    width: 65%;
+    background-color: rgb(29, 29, 29);
+    padding: 20px;
+    overflow-y: auto;
+}
+.bottom-right * {
+    padding: 5px;
 }
 
+#canvas-container {
+    height: 100%;
+}
+#canvas-container .wall{
+    height: 30%;
+    background-color: rgb(39, 39, 39);
+}
+#canvas-container .ground{
+    height: 70%;
+    background-color: rgb(77, 77, 77);
+    filter: drop-shadow(0 -10px 50px  rgba(0, 0, 0, 0.8));
+}
+
+ #canvas {
+    z-index: 1;
+    position: absolute;
+    background-color: rgba(146, 146, 146, 0.6);
+}
+ 
 #level-selector {
-    z-index: 100;
-    height: 80px;
-    width: 400px;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
     position: fixed;
     top: 0;
     right: 0;
-    background-color: hotpink;
+    height: 80px;
+    width: 400px;
+    background-color: rgb(92, 92, 92);
+    border-radius: 0 0 0 20px;
 }
 #regex-container {
+    z-index: 1;
     position: absolute;
     bottom: 0;
     left:0;
     right:0;
-    margin-left:auto;
-    margin-right:auto;
-
+    margin: 0 auto;
+    display: flex;
+    justify-content: stretch;
+    align-items: center;
     width: 70%;
     height: 50px;
 
-    display: flex;
-    justify-content: stretch;
-
-    background-color: blue;
+    background-color: white;
+    border-radius: 20px 20px 0 0;
+    padding: 0 20px;
+}
+#regex-container * {
+    margin: 0 5px;
 }
 #flags-input {
     flex-grow: 0.1;
+    height: 70%;
+    font-size: 1.3em;
+    outline-width: 0;
+    border-width: 0;
+    border-bottom: 3px solid rgb(224, 224, 224);
+    color: gray;
 }
 #regex-input {
+    font-size: 1.3em;
+    outline-width: 0;
+    border-width: 0;
+    border-bottom: 3px solid rgb(224, 224, 224);
     flex-grow: 2;
+    height: 70%;
+    color: gray;
 }
+
 #submit-button {
+    background-color: rgb(71, 223, 84);
+    color: white;
+    font-weight: 700;
+    font-size: 1.2em;
+    border: 4px solid rgb(112, 238, 129);
+    border-radius: 10px;
     flex-grow: 0.1;
+    height: 70%;
+}
+
+#testcase-container {
+    display: flex;
+    justify-content: flex-start;
+    
+}
+#match {
+    margin-left: 50px;
+}
+#no-match {
+    margin-left: 50px;
 }

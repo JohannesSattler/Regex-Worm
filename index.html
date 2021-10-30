@@ -9,13 +9,22 @@
 </head>
 <body>
     <div class="top">
-        <div id="level-selector">
-            <h1>GITHUB</h1>
-            <h1>Acheviement</h1>
-            <div>Level1</div>
+        <div id="canvas-container">
+            <canvas id="canvas"></canvas>
+            <div class="wall">
+
+            </div>
+            <div class="ground">
+
+            </div>
         </div>
-        <div id="regex-container">
-            <input id="regex-input" type="text">
+        <div id="level-selector">
+            <h1>G</h1>
+            <h1>A</h1>
+            <h1>Level Selector</h1>
+        </div>
+        <div id="regex-container" style="display: none;">
+            <input id="regex-input" placeholder="Put your Regex here" type="text">
             <select id="flags-input" type="text">
                 <option value="g" selected>g</option>
             </select>
@@ -25,7 +34,7 @@
     <div class="bottom-container">
         <div class="bottom-left">
             <h1>Test Cases</h1>
-            <div id="test-case-container">
+            <div id="testcase-container">
                 <div id="match">
                     <h2>Match these</h2>
                     <ul>
@@ -73,5 +82,8 @@
             </p>
         </div>
     </div>
+
+    <script src="./src/js/worm.js"></script>
+    <script src="./src/js/main.js"></script>
 </body>
 </html>
