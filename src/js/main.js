@@ -6,7 +6,8 @@ canvas.height = canvasParent.clientHeight;
 
 const ctx = canvas.getContext('2d');
 
-const imageSources = ['./assets/body.png', './assets/head.png', './assets/leg1.png', './assets/leg2.png']
+const imageSources = ['./assets/body.png', './assets/head.png', './assets/leg1.png', './assets/leg2.png', 
+'./assets/leg11.png', './assets/leg12.png', './assets/leg13.png', './assets/leg21.png', './assets/leg22.png', './assets/leg23.png']
 const images = {};
 
 function loadAllImages() {
@@ -48,47 +49,35 @@ function createWorms(amount) {
     }
 }
 
-let incX = 1;
-let y = 100;
-
-let upOrDown = '';
-
-window.addEventListener('keydown', (event) => {
-    if(event.key === 'ArrowUp') {
-        upOrDown = 'up'
-    }
-    else if(event.key === 'ArrowDown') {
-        upOrDown = 'down'
-    }
-    else {
-        upOrDown = ''
-    }
-})
-
-window.addEventListener('keyup', () => {
-    upOrDown = '';
-})
-
+// Got @getCursorPosition from: https://stackoverflow.com/a/18053642/14548868
 function getCursorPosition(canvas, event) {
     const rect = canvas.getBoundingClientRect()
     const x = event.clientX - rect.left
     const y = event.clientY - rect.top
     console.log(x, y)
 
-    const selectedWorm = getClickedWorm(x, y)
+    const selectedWorm = getClickedWorm(x, y);
 }
 
 function getClickedWorm(x, y) {
     let selectedWorm = undefined;
 
     worms.forEach(worm => {
-        if(x > worm.x-180 && x < worm.x+150 && y > worm.y && y < worm.y+100) {
-            console.log(worm.x, x)
+        const halfWidth = Math.floor((worm.getWidth() + worm.size) / 2);
+        const height = worm.getHeight();
+
+        // reminde as x is supposed to start in the middle
+        // x -/+ half of worm width
+        // worm.size gets added or substracted beceause of the head?
+        if(x > worm.x - halfWidth + (worm.size / 2) && x < worm.x + halfWidth + (worm.size / 2) && y > worm.y && y < worm.y+height) {
+            console.log(worm.getWidth(), worm.getHeight())
             worm.incX *= 2;
             selectedWorm = worm;
         }
     })
 
+    if(!selectedWorm) return;
+    console.log(selectedWorm.regex)
     return selectedWorm;
 }
 
@@ -112,7 +101,7 @@ function moveTheWorm() {
                 }
             }
 
-            worm.updateWorm(worm.x+=worm.incX, worm.y);
+            worm.updateWorm(worm.x+=worm.incX, worm.y+=worm.incY);
 
             if(worm.y == worm.target) {
                 worm.animationPlaying = false;
