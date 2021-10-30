@@ -32,7 +32,110 @@ function start() {
     moveTheWorm()
 }
 
+let worms = [];
+function createWorms(amount) {
+    for(let i = 0; i < amount; i++) {
+        if(i % 2 === 1) {
+            const worm = new ReversedWorm(canvas.width+250, 100 + (i * 50), 120);
+            worm.buildWorm();
+            worms.push(worm)
+        }
+        else {
+            const worm = new Worm(-250, 100 + (i * 50), 120);
+            worm.buildWorm();
+            worms.push(worm)
+        }
+    }
+}
 
+let incX = 1;
+let y = 100;
+
+let upOrDown = '';
+
+window.addEventListener('keydown', (event) => {
+    if(event.key === 'ArrowUp') {
+        upOrDown = 'up'
+    }
+    else if(event.key === 'ArrowDown') {
+        upOrDown = 'down'
+    }
+    else {
+        upOrDown = ''
+    }
+})
+
+window.addEventListener('keyup', () => {
+    upOrDown = '';
+})
+
+function getCursorPosition(canvas, event) {
+    const rect = canvas.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+    console.log(x, y)
+
+    const selectedWorm = getClickedWorm(x, y)
+}
+
+function getClickedWorm(x, y) {
+    let selectedWorm = undefined;
+
+    worms.forEach(worm => {
+        if(x > worm.x-180 && x < worm.x+150 && y > worm.y && y < worm.y+100) {
+            console.log(worm.x, x)
+            worm.incX *= 2;
+            selectedWorm = worm;
+        }
+    })
+
+    return selectedWorm;
+}
+
+canvas.addEventListener('mousedown', (e) => {
+    getCursorPosition(canvas, e)
+})
+
+function moveTheWorm() {
+    createWorms(7);
+
+    let intervallID = setInterval(() => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        
+        worms.forEach((worm, index) => {
+            if(index === 0) {
+                if(worm.x > canvas.width+250) {
+                    worms = []
+                    clearInterval(intervallID)
+                    moveTheWorm();
+                    return;
+                }
+            }
+
+            worm.updateWorm(worm.x+=worm.incX, worm.y);
+
+            if(worm.y == worm.target) {
+                worm.animationPlaying = false;
+            } 
+        })
+
+    }, 10);
+}
+
+
+function checkForCollision(col1, col2) {
+    if(col1.x > col2.x && col1.x < col2.x + 100 && col1.y > col2.y && col1.y < col2.y + 100) {
+        return [true, col2.x];
+    }
+    else {
+        return [false, 0];
+    }
+}
+
+
+
+
+/* 
 function createPark() {
     const worms = [];
     let xPositions = [400, 900, 1400]
@@ -65,103 +168,29 @@ function getNextFreeSpace(x, y, allWorms) {
 
         positions.push(positionItem)
     }
+    // get free spaces
+    let ranges = [];
 
-    let targetPosition = 0
-    positions.forEach(pos => {
-        if((y + 100) < pos.y+100 && (y + 100) > pos.y - 100) {
-            targetPosition = y + 100
-        }
-        else {
-            targetPosition = y - 100
-        }
-    })
-    console.log(y, targetPosition)
-    return targetPosition;
-}
+    ranges.push(Math.round((0 + positions[0].y)/2)) // start Canvas
 
-const allWormsMoving = [];
-function createWorms(amount) {
-    for(let i = 0; i < amount; i++) {
-        const worm1 = new Worm(0, 100+(i*100), 120);
-        worm1.buildWormNew();
-        allWormsMoving.push(worm1)
+    for(let i = 0; positions.length; i++) {
+        if(!positions[i+1]) break;
+        const middle = Math.round((positions[i].y + positions[i+1].y)/2)
+
+        ranges.push(middle)
     }
-}
 
-createWorms(3);
+    ranges.push(Math.round((positions[positions.length-1].y + canvas.height)/2)) // end Canvas
 
+    const closest = ranges.reduce((a, b) => {
+        return Math.abs(b - y) < Math.abs(a - y) ? b : a;
+    });
 
-let incX = 1;
-let y = 100;
+    const randomPosY = ranges[Math.floor(Math.random() * ranges.length)]
 
-function moveTheWorm() {
-
-    let intervallID = setInterval(() => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        const worms = createPark();
-
-        allWormsMoving.forEach(worm => {
-            let coliding = false;
-            let collisionX = 0;
-    
-            for(let i = 0; i < worms.length; i++) {
-                const col1 = worms[i].collisionBody;
-                const col2 = worm.collisionBody;
-                [coliding, collisionX] = checkForCollision(col1, col2);
-
-                if(coliding == true) {
-                    break;
-                };
-            }
-
-            if(coliding && !worm.animationPlaying) {
-                worm.startX = collisionX;
-                worm.target = getNextFreeSpace(worm.x, worm.y, worms)
-
-                if(worm.y < worm.target) {
-                    worm.goUpOrDown = 'down'
-                }
-                else {
-                    worm.goUpOrDown = 'up'
-                }
-
-                worm.animationPlaying = true;
-            } 
-    
-            if(worm.goUpOrDown === 'down') {
-                worm.goDown(worm.x+=incX, worm.y, worm.target, worm.startX);
-                worm.startX -= 5;
-            } 
-            else if (worm.goUpOrDown === 'up') {
-                worm.goUp(worm.x+=incX, worm.y, worm.target, worm.startX);
-                worm.startX -= 5;
-            }
-            else {
-                worm.updateNewWorm(worm.x+=incX, worm.y);
-            }
-    
-    
-            if(worm.y == worm.target) {
-                worm.animationPlaying = false;
-            } 
-        })
-
-    }, 10);
-}
-
-
-function checkForCollision(col1, col2) {
-    if(col1.x > col2.x && col1.x < col2.x + 100 && col1.y > col2.y && col1.y < col2.y + 100) {
-        return [true, col2.x];
-    }
-    else {
-        return [false, 0];
-    }
-}
-
-
-
-
+    console.log({y, closest, randomPosY});
+    return closest;
+} */
 
 /* let size = 120;
 
