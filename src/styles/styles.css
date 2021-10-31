@@ -17,6 +17,13 @@ body, html {
      margin-left: 30px;
  }
 
+#canvas {
+    z-index: 1;
+    position: absolute;
+    background-color: rgba(146, 146, 146, 0.3);
+    letter-spacing: 0.3em;
+}
+
 .container {
     height: 100%;
     width: 100%;
@@ -68,12 +75,6 @@ body, html {
     height: 70%;
     background-color: rgb(77, 77, 77);
     filter: drop-shadow(0 -10px 50px  rgba(0, 0, 0, 0.8));
-}
-
- #canvas {
-    z-index: 1;
-    position: absolute;
-    background-color: rgba(146, 146, 146, 0.6);
 }
  
 #level-selector {
