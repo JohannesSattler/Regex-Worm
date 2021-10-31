@@ -22,7 +22,7 @@ ctx.filter = grayFilter;
 const imageSources = 
 ['./assets/body.png', './assets/head.png', './assets/leg1.png', './assets/leg2.png', 
 './assets/leg11.png', './assets/leg12.png', './assets/leg13.png', './assets/leg21.png', './assets/leg22.png', 
-'./assets/leg23.png']
+'./assets/leg23.png', './assets/play.png']
 const images = {};
 
 // Load all the images before starting the Game
@@ -51,8 +51,6 @@ let count = 0;
 function start() {
     currentLevel = selectLevel();
     updateMatchList();
-    const wormCount = currentLevel.regex.length
-    //createWorms(++count);
     moveTheWorm()
 }
 
@@ -61,6 +59,9 @@ function selectLevel() {
 }
 
 function updateMatchList() {
+    matchList.innerText = ''
+    dontMatchList.innerText = ''
+
     currentLevel.match.forEach(match => {
         const item = document.createElement('li');
         item.innerText = match;
@@ -145,14 +146,15 @@ function getNextYposition(worms, width) {
 
 let intervallID = null;
 let spawningIntervallID = null;
-let timesRun = 0;
 
 function moveTheWorm() {
 
+    // spawning worms
     spawningIntervallID = setInterval(() => {
         createWorms(1);
     }, 1000);
 
+    // moving all worms
     intervallID = setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -161,45 +163,12 @@ function moveTheWorm() {
         worms.forEach((worm, index) => {
             if(worm.x > canvas.width + 250) {
                 worms.splice(index, 1);
-                //createWorms(1);
             }
             
             worm.updateWorm(worm.x+=worm.incX, worm.y+=worm.incY);
         })
 
     }, 10);
-}
-
-
-// Got @getCursorPosition from: https://stackoverflow.com/a/18053642/14548868
-function getCursorPosition(canvas, event) {
-    const rect = canvas.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
-    console.log(x, y)
-
-    const [selectedWorm, index] = getClickedWorm(x, y);
-    if(!selectedWorm) return;
-    winingScreen(selectedWorm, index)
-}
-
-function getClickedWorm(x, y) {
-    let selectedWorm = undefined;
-    let index = 0;
-
-    worms.forEach((worm, i) => {
-        const width = worm.getWidth();
-        const height = worm.getHeight();
-
-        if(x > worm.x && x < worm.x + width && y > worm.y && y < worm.y + height) {
-            worm.incX *= 2;
-            selectedWorm = worm;
-            index = i;
-        }
-    })
-
-    if(!selectedWorm) return;
-    return [selectedWorm, index];
 }
 
 function regexValidate(regex) {
@@ -260,11 +229,13 @@ function checkRegex(regex, string) {
 
 function winingScreen(winningWorm, index) {
     clearInterval(intervallID);
-    clearInterval(spawningIntervallID)
+    clearInterval(spawningIntervallID);
 
     moveToXPosition(worms, winningWorm, index)
     winningWorm.incX = 0;
 }
+
+let finishIntervalID = null;
 
 function moveToXPosition(worms, winningWorm, index) {
     worms.splice(index, 1)
@@ -274,7 +245,7 @@ function moveToXPosition(worms, winningWorm, index) {
     let targetYPos = winningWorm.y + 50
     let incY = 1;
 
-    let myIntervall = setInterval(() => {
+    finishIntervalID = setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         drawCurrentTask() 
 
@@ -309,30 +280,109 @@ function moveToXPosition(worms, winningWorm, index) {
         else {
             winningWorm.animStop = true;
             winningWorm.updateWorm(winningWorm.x, winningWorm.y)
-            if(allWorms && onlyOnce) {
-                win = regexValidate(winningWorm.regex);
-                filter = win ? greenFilter : redFilter;
-                ctx.filter = filter;
-                onlyOnce = false;
+            if(allWorms) {
+                replay(winningWorm.x, winningWorm.y, winningWorm.getWidth())
+                if(onlyOnce) {
+                    win = regexValidate(winningWorm.regex);
+                    filter = win ? greenFilter : redFilter;
+                    ctx.filter = filter;
+                    onlyOnce = false;
+                }
             };
         }
     }, 10);
+}
 
-    console.log('animEnded')
+// Got @getCursorPosition() from: https://stackoverflow.com/a/18053642/14548868
+function getCursorPosition(canvas, event) {
+    const rect = canvas.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+    console.log(x, y)
+
+    const [selectedWorm, index] = getClickedWorm(x, y);
+    if(!selectedWorm) return;
+    winingScreen(selectedWorm, index)
+}
+
+function getClickedWorm(x, y) {
+    let selectedWorm = undefined;
+    let index = 0;
+
+    worms.forEach((worm, i) => {
+        const width = worm.getWidth();
+        const height = worm.getHeight();
+
+        if(x > worm.x && x < worm.x + width && y > worm.y && y < worm.y + height) {
+            worm.incX *= 2;
+            selectedWorm = worm;
+            index = i;
+        }
+    })
+
+    if(!selectedWorm) return;
+    return [selectedWorm, index];
+}
+
+function getCursorPosition2(canvas, event) {
+    const rect = canvas.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+    return {x, y}
+}
+
+let replayState = false;
+let replyButton = {};
+
+function replay(x, y, width) {
+    replayState = true;
+    ctx.beginPath()
+    ctx.drawImage(images.play, x+(width/2)-45, y-50, 70, 70);
+    ctx.closePath();
+
+    replyBut = {
+        x: x+(width/2)-45,
+        y: y-50,
+        w: 70
+    }
 }
 
 canvas.addEventListener('mousedown', (e) => {
+    if(replayState) {
+        const cursor = getCursorPosition2(canvas, e) 
+
+        if(cursor.x > replyBut.x && cursor.x < replyBut.x + replyBut.w) {
+            if(cursor.y > replyBut.y - replyBut.w && cursor.y < replyBut.y + replyBut.w) {
+                console.log('reeeeply');
+                playNextLevel();
+            }
+        }
+
+        return;
+    }
     getCursorPosition(canvas, e)
 })
 
-function checkForCollision(col1, col2) {
-    if(col1.x > col2.x && col1.x < col2.x + 100 && col1.y > col2.y && col1.y < col2.y + 100) {
-        return [true, col2.x];
-    }
-    else {
-        return [false, 0];
-    }
+function clearLevel() {
+    clearInterval(finishIntervalID)
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.filter = grayFilter;
+    worms = []
+    replayState = false
+    replyButton = {};
+    currentLevel = null;
+    count = 0;
+    intervallID = null;
+    spawningIntervallID = null;
+    finishIntervalID = null;
 }
+
+function playNextLevel() {
+    clearLevel()
+    start()
+}
+
+
 
 function drawCurrentTask() {
     ctx.beginPath();
