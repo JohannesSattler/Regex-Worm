@@ -46,11 +46,13 @@ function loadAllImages() {
 loadAllImages();
 let currentLevel = null;
 
+let count = 0;
+
 function start() {
     currentLevel = selectLevel();
     updateMatchList();
     const wormCount = currentLevel.regex.length
-    createWorms(wormCount);
+    //createWorms(++count);
     moveTheWorm()
 }
 
@@ -77,18 +79,17 @@ function createWorms(amount) {
     sortWormsYposition(worms)
 
     for(let i = 0; i < amount; i++) {
-        let xOffset = Math.floor(Math.random() * (500 - 100) + 100)
-        if(i === 0) xOffset = 100;
-        console.log({xOffset})
-
-        const worm = new Worm(0, getNextYposition(worms), 120);
+        let xOffset = Math.floor(Math.random() * (300 - 100) + 100)
+        
+        const worm = new Worm(-100, 0, 120);
 
         const regex = currentLevel.regex;
         const getRandom = regex[Math.floor(Math.random() * regex.length)]
         worm.isRight = true;
 
+        worm.x = worm.x - (getRandom.length * 50 + 120);
+        worm.y = getNextYposition(worms, getRandom.length * 50 + 120)
 
-        worm.x = worm.x - worm.getWidth() - xOffset
         worm.regex = getRandom;
         worm.buildWorm();
         worms.push(worm)
@@ -97,13 +98,14 @@ function createWorms(amount) {
 
 function sortWormsYposition(worms) {
     worms.sort((worm1, worm2) => {
-        if(worm1.y < worm1.y) return -1;
+        if(worm1.y < worm2.y) return -1;
         else if(worm1.y > worm2.y) return 1;
         else return 0;
     })
+    worms.forEach(worm => console.log(worm.y))
 }
 
-function getNextYposition(worms) {
+function getNextYposition(worms, width) {
     if(!worms.length) return 100;
 
     // 0.1 - 0.5
@@ -114,29 +116,43 @@ function getNextYposition(worms) {
     const rand = Math.random() * (max - min) + min
     let position = Number(rand.toFixed(1)) * 1000 
 
-    // object of used positions
-    let positions = {}
+    // object of used Y positions that are at the start of the map
+    let positions = []
+
     worms.forEach(worm => {
-        positions[worm.y] = positions[worm.y] || worm.y;
+        if(worm.x < -100 ){
+            console.log('this is x and its smaller', worm.x);
+            positions[worm.y] = 1;
+        } 
+        else {
+            console.log('this is x ', worm.x);
+        }
     })
 
     let step = 100;
-    // Im scared of infinite loops
+
+    // Oh man this is dangerous :O
     while(positions[position] !== undefined) {
         if(position+step > maxHeight) position -= step
         if(position-step < minHeight) position += step
-
+ 
         position += Math.random() > 0.5 ? step : -step;
-        console.log(position, positions[position] !== undefined);
-    } 
+    }  
 
     return position;
 }
 
 
 let intervallID = null;
+let spawningIntervallID = null;
+let timesRun = 0;
 
 function moveTheWorm() {
+
+    spawningIntervallID = setInterval(() => {
+        createWorms(1);
+    }, 1000);
+
     intervallID = setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
 
@@ -145,7 +161,7 @@ function moveTheWorm() {
         worms.forEach((worm, index) => {
             if(worm.x > canvas.width + 250) {
                 worms.splice(index, 1);
-                createWorms(1);
+                //createWorms(1);
             }
             
             worm.updateWorm(worm.x+=worm.incX, worm.y+=worm.incY);
@@ -164,8 +180,7 @@ function getCursorPosition(canvas, event) {
 
     const [selectedWorm, index] = getClickedWorm(x, y);
     if(!selectedWorm) return;
-    const win = regexValidate(selectedWorm.regex);
-    winingScreen(selectedWorm, index, win)
+    winingScreen(selectedWorm, index)
 }
 
 function getClickedWorm(x, y) {
@@ -184,7 +199,6 @@ function getClickedWorm(x, y) {
     })
 
     if(!selectedWorm) return;
-    console.log(selectedWorm.regex)
     return [selectedWorm, index];
 }
 
@@ -197,11 +211,11 @@ function regexValidate(regex) {
 
         const check = checkRegex(regex, string);
         if(check) {
-            li.style.color = 'green'
+            li.style.color = '#66e35f'
             return true;
         }
         else {
-            li.style.color = 'red'
+            li.style.color = '#e35f5f'
             return false;
         }
     });
@@ -211,18 +225,17 @@ function regexValidate(regex) {
 
         const check = checkRegex(regex, string);
         if(check) {
-            li.style.color = 'red'
+            li.style.color = '#e35f5f'
             return false;
         }
         else {
-            li.style.color = 'green'
+            li.style.color = '#66e35f'
             return true;
         }
     });
 
     const allTest = allMatch.concat(allDontMatch);
     const win = allTest.every(item => item === true);
-    console.log('Win1', win)
     return win;
 }
 
@@ -245,18 +258,21 @@ function checkRegex(regex, string) {
     }
 }
 
-function winingScreen(winningWorm, index, win) {
+function winingScreen(winningWorm, index) {
     clearInterval(intervallID);
+    clearInterval(spawningIntervallID)
 
-    moveToXPosition(worms, winningWorm, index, win)
+    moveToXPosition(worms, winningWorm, index)
     winningWorm.incX = 0;
 }
 
-function moveToXPosition(worms, winningWorm, index, win) {
+function moveToXPosition(worms, winningWorm, index) {
     worms.splice(index, 1)
-    console.log({win});
+    let win, filter = null;
+    let onlyOnce = true;
 
-    const filter = win ? greenFilter : redFilter;
+    let targetYPos = winningWorm.y + 50
+    let incY = 1;
 
     let myIntervall = setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -274,14 +290,18 @@ function moveToXPosition(worms, winningWorm, index, win) {
         const isRight = middleWorm <= (canvas.width / 2)
         const isLeft = middleWorm >= (canvas.width / 2)
 
+        if(winningWorm.y === targetYPos) {
+            incY = 0;
+        }
+
         if(isMiddle) {
             if(isLeft) {
                 let inc = -2;
-                winningWorm.updateWorm(winningWorm.x+=inc, winningWorm.y)
+                winningWorm.updateWorm(winningWorm.x+=inc, winningWorm.y+=incY)
             }
             else if(isRight) {
                 let inc = 2;
-                winningWorm.updateWorm(winningWorm.x+=inc, winningWorm.y)
+                winningWorm.updateWorm(winningWorm.x+=inc, winningWorm.y+=incY)
             }
 
             allWorms = false;
@@ -289,11 +309,16 @@ function moveToXPosition(worms, winningWorm, index, win) {
         else {
             winningWorm.animStop = true;
             winningWorm.updateWorm(winningWorm.x, winningWorm.y)
-            if(allWorms) {
+            if(allWorms && onlyOnce) {
+                win = regexValidate(winningWorm.regex);
+                filter = win ? greenFilter : redFilter;
                 ctx.filter = filter;
+                onlyOnce = false;
             };
         }
     }, 10);
+
+    console.log('animEnded')
 }
 
 canvas.addEventListener('mousedown', (e) => {
@@ -326,86 +351,6 @@ function drawCurrentTask() {
     ctx.closePath();
 }
 
-
-
-/* 
-function createPark() {
-    const worms = [];
-    let xPositions = [400, 900, 1400]
-
-    const amount = Math.floor(canvas.width / 100)
-    const height = Math.floor(canvas.height / 100)
-    console.log(amount, height)
-
-    for(let u = 0; u < xPositions.length; u++) {
-        for(let i = 0; i < amount; i++) {
-            let thisMyYY = i * 210;
-            
-            const wormCollision1 = new Worm(xPositions[u], thisMyYY+(-xPositions[u]/2), 120);
-            wormCollision1.buildWormNew();
-            worms.push(wormCollision1)
-        }
-    }
-
-    return worms
-}
-
-function getNextFreeSpace(x, y, allWorms) {
-    const positions = []
-    for(let i = 0; i < allWorms.length; i++) {
-        const positionItem = {
-            valueX: allWorms[i].x,
-            y: allWorms[i].y,
-            width: allWorms[i].getSize()
-        }
-
-        positions.push(positionItem)
-    }
-    // get free spaces
-    let ranges = [];
-
-    ranges.push(Math.round((0 + positions[0].y)/2)) // start Canvas
-
-    for(let i = 0; positions.length; i++) {
-        if(!positions[i+1]) break;
-        const middle = Math.round((positions[i].y + positions[i+1].y)/2)
-
-        ranges.push(middle)
-    }
-
-    ranges.push(Math.round((positions[positions.length-1].y + canvas.height)/2)) // end Canvas
-
-    const closest = ranges.reduce((a, b) => {
-        return Math.abs(b - y) < Math.abs(a - y) ? b : a;
-    });
-
-    const randomPosY = ranges[Math.floor(Math.random() * ranges.length)]
-
-    console.log({y, closest, randomPosY});
-    return closest;
-} */
-
-/* let size = 120;
-
-function upOrDown() {
-
-    let target = 200;
-    let startX = 400;
-
-    let intervallID = setInterval(() => {
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        worm1.goDown(x+=incX, y, target, startX);
-        startX -= 5;
-
-        if(worm1.y == 200) {
-            console.log('animation finished');
-            clearInterval(intervallID)
-
-            upOrDown();
-        }
-    }, 10);
-} */
 
 
 
