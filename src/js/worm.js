@@ -10,6 +10,7 @@ class Worm {
         this.incX = 2;
         this.incY = 0;
         this.animStop = false;
+        this.isRight = null;
 
         const randIndex = Math.floor(Math.random() * regexes.length) 
         this.regex = regexes[randIndex]

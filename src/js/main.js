@@ -1,3 +1,7 @@
+
+const matchList = document.querySelector('#match > ul');
+const dontMatchList = document.querySelector('#no-match > ul');
+
 const canvas = document.getElementById('canvas');
 const canvasParent = document.getElementById('canvas-container');
 
@@ -40,10 +44,32 @@ function loadAllImages() {
 }
 
 loadAllImages();
+let currentLevel = null;
 
 function start() {
-    createWorms(3);
+    currentLevel = selectLevel();
+    updateMatchList();
+    const wormCount = currentLevel.regex.length
+    createWorms(wormCount);
     moveTheWorm()
+}
+
+function selectLevel() {
+    return levels[Math.floor(Math.random() * levels.length)]
+}
+
+function updateMatchList() {
+    currentLevel.match.forEach(match => {
+        const item = document.createElement('li');
+        item.innerText = match;
+        matchList.insertAdjacentElement('beforeend', item)
+    })
+
+    currentLevel.dontMatch.forEach(dontMatch => {
+        const item = document.createElement('li');
+        item.innerText = dontMatch;
+        dontMatchList.insertAdjacentElement('beforeend', item)
+    })
 }
 
 let worms = [];
@@ -56,21 +82,25 @@ function createWorms(amount) {
         console.log({xOffset})
 
         const worm = new Worm(0, getNextYposition(worms), 120);
+
+        const regex = currentLevel.regex;
+        const getRandom = regex[Math.floor(Math.random() * regex.length)]
+        worm.isRight = true;
+
+
         worm.x = worm.x - worm.getWidth() - xOffset
+        worm.regex = getRandom;
         worm.buildWorm();
         worms.push(worm)
     }
 }
 
 function sortWormsYposition(worms) {
-    //const wormsClone = JSON.parse(JSON.stringify(worms))
     worms.sort((worm1, worm2) => {
         if(worm1.y < worm1.y) return -1;
         else if(worm1.y > worm2.y) return 1;
         else return 0;
     })
-
-    //return wormsClone;
 }
 
 function getNextYposition(worms) {
@@ -110,7 +140,7 @@ function moveTheWorm() {
     intervallID = setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-        drawCurrentTask('ONLY SELECT DIGITS 0-9')
+        drawCurrentTask()
         
         worms.forEach((worm, index) => {
             if(worm.x > canvas.width + 250) {
@@ -134,8 +164,8 @@ function getCursorPosition(canvas, event) {
 
     const [selectedWorm, index] = getClickedWorm(x, y);
     if(!selectedWorm) return;
-    const won = regexValidate();
-    winingScreen(selectedWorm, index)
+    const win = regexValidate(selectedWorm.regex);
+    winingScreen(selectedWorm, index, win)
 }
 
 function getClickedWorm(x, y) {
@@ -159,23 +189,78 @@ function getClickedWorm(x, y) {
 }
 
 function regexValidate(regex) {
-    return true;
+    const match = Array.from(matchList.children);
+    const dontMatch = Array.from(dontMatchList.children);
+
+    const allMatch = match.map(li => {
+        const string = li.innerText;
+
+        const check = checkRegex(regex, string);
+        if(check) {
+            li.style.color = 'green'
+            return true;
+        }
+        else {
+            li.style.color = 'red'
+            return false;
+        }
+    });
+
+    const allDontMatch = dontMatch.map(li => {
+        const string = li.innerText;
+
+        const check = checkRegex(regex, string);
+        if(check) {
+            li.style.color = 'red'
+            return false;
+        }
+        else {
+            li.style.color = 'green'
+            return true;
+        }
+    });
+
+    const allTest = allMatch.concat(allDontMatch);
+    const win = allTest.every(item => item === true);
+    console.log('Win1', win)
+    return win;
 }
 
-function winingScreen(winningWorm, index) {
+function checkRegex(regex, string) {
+    let re = null;
+
+    try {
+        re = new RegExp(regex, "g");
+    }
+    catch (e){
+        console.log(e.message, ' oh no')
+    }
+
+    if(re) {
+        console.log(re.test(string))
+        return re.test(string)
+    } 
+    else {
+        return false;
+    }
+}
+
+function winingScreen(winningWorm, index, win) {
     clearInterval(intervallID);
 
-    moveToXPosition(worms, winningWorm, index)
-
+    moveToXPosition(worms, winningWorm, index, win)
     winningWorm.incX = 0;
 }
 
-function moveToXPosition(worms, winningWorm, index) {
+function moveToXPosition(worms, winningWorm, index, win) {
     worms.splice(index, 1)
-    const filter = Math.random() > 0.5 ? greenFilter : redFilter;
+    console.log({win});
+
+    const filter = win ? greenFilter : redFilter;
 
     let myIntervall = setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
+        drawCurrentTask() 
 
         worms.forEach(worm => {
             worm.updateWorm(worm.x+=(worm.incX*4), worm.y+=worm.incY);
@@ -184,23 +269,30 @@ function moveToXPosition(worms, winningWorm, index) {
         let allWorms = worms.every(worm => worm.x > canvas.width + worm.getWidth())
 
         const middleWorm = winningWorm.x + winningWorm.getWidth() / 2;
-        const isMiddle = middleWorm < (canvas.width / 2) - 10 || middleWorm > (canvas.width / 2) + 10;
+        const isMiddle = middleWorm <= (canvas.width / 2) - 10 || middleWorm >= (canvas.width / 2) + 10;
+
+        const isRight = middleWorm <= (canvas.width / 2)
+        const isLeft = middleWorm >= (canvas.width / 2)
+
         if(isMiddle) {
-            let inc = winningWorm.x > canvas.width / 2 ? -2 : 2;
-            winningWorm.updateWorm(winningWorm.x+=inc, winningWorm.y)
+            if(isLeft) {
+                let inc = -2;
+                winningWorm.updateWorm(winningWorm.x+=inc, winningWorm.y)
+            }
+            else if(isRight) {
+                let inc = 2;
+                winningWorm.updateWorm(winningWorm.x+=inc, winningWorm.y)
+            }
+
             allWorms = false;
         } 
         else {
             winningWorm.animStop = true;
-            console.log(winningWorm.animStop)
             winningWorm.updateWorm(winningWorm.x, winningWorm.y)
             if(allWorms) {
                 ctx.filter = filter;
             };
         }
-
-
-        
     }, 10);
 }
 
@@ -217,13 +309,13 @@ function checkForCollision(col1, col2) {
     }
 }
 
-function drawCurrentTask(task) {
+function drawCurrentTask() {
     ctx.beginPath();
     ctx.font = "40px Impact";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
     ctx.textAlign = "center";
-    ctx.fillText(task, (canvas.width / 2), 50);
+    ctx.fillText(currentLevel.mission, (canvas.width / 2), 50);
     ctx.closePath();
     ctx.beginPath();
     ctx.font = "15px Arial";
