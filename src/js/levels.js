@@ -1,7 +1,7 @@
 const levels = [
     {
         mission: 'Match all numbers',
-        regex: ['[0-9]', '/d', '[^a-zA-z]', '0-9'],
+        regex: ['[0-9]', '/d', '[^a-zA-z]', '0-9', '/d', '[^a-zA-z]', '0-9'],
         match: ['1234', '35345', '32108943', '809342', '7812379'],
         dontMatch: ['ads', 'fdsfsd', '/)(§%$', ')(/)/', '(/??']
     },
