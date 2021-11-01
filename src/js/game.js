@@ -79,6 +79,7 @@ function getCursorPosition(canvas, event) {
     winingScreen(selectedWorm, index)
 }
 
+// current click position
 function getCursorPosition2(canvas, event) {
     const rect = canvas.getBoundingClientRect()
     const x = event.clientX - rect.left
@@ -89,6 +90,8 @@ function getCursorPosition2(canvas, event) {
     }
 }
 
+// compares click position and worms position
+// return selectedWorm & index if found
 function getClickedWorm(x, y) {
     let selectedWorm = undefined;
     let index = 0;
@@ -113,26 +116,46 @@ function getClickedWorm(x, y) {
 // -------------------------------------
 
 function drawClock(time) {
-    const convertedTime = Number((time / 1000).toFixed(0));
+    const minutes = Math.floor(time / 1000 / 60)
+    const seconds = Math.floor(time / 1000) % 60;
+    
+    const makeTwoDigits = number => {
+        if(number < 10) {
+            return '0' + number
+        }
+        return number
+    }
+    
+    const text = makeTwoDigits(minutes) + ':' + makeTwoDigits(seconds)
 
     ctx.beginPath();
     ctx.font = "30px Impact";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
     ctx.textAlign = "center";
-    ctx.fillText('00:' + convertedTime, 100, 50);
+    ctx.fillText(text, 100, 50);
     ctx.closePath();
 }
 
 function drawHearts(amount) {
-    let xGab = 50;
+    let xGab = 20;
 
     ctx.beginPath();
     for (let i = 1; i <= amount; i++) {
-        ctx.drawImage(images.heart, 150 + xGab, 30, 40, 40);
-        xGab += 50;
+        ctx.drawImage(images.heart, 150 + xGab, 35, 30, 30);
+        xGab += 30;
     }
     ctx.closePath()
+}
+
+function drawScoreBoard(score) {
+    ctx.beginPath();
+    ctx.font = "25px Arial";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.textAlign = "center";
+    ctx.fillText('Score: ' + score, 350, 50);
+    ctx.closePath();
 }
 
 function drawCurrentTask() {

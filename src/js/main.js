@@ -51,6 +51,9 @@ function loadAllImages() {
     })
 }
 
+// -------------------------------------
+//       GAME - Parameters
+// -------------------------------------
 
 let worms = [];
 let currentLevel = null;
@@ -61,6 +64,10 @@ let replyBut = {};
 let intervallID = null;
 let spawningIntervallID = null;
 let finishIntervalID = null;
+
+let timeForLvl = 2 * 60 * 1000;
+let lives = 3;
+let score = 0;
 
 // -------------------------------------
 //           LEVEL HANDLER
@@ -127,6 +134,14 @@ function playNextLevel() {
     start()
 }
 
+function lostGame() {
+    timeForLvl = 30 * 1000;
+    score = 0;
+    lives = 3;
+    clearLevel()
+    start()
+}
+
 // Sets the test Cases
 function updateMatchList() {
     matchList.innerText = ''
@@ -146,7 +161,7 @@ function updateMatchList() {
 }
 
 // -------------------------------------
-//              MOVEMENT
+//         DRAW MOVEMENT & LEVEL
 // -------------------------------------
 
 // moves and spawns worms
@@ -156,13 +171,12 @@ function moveTheWorm() {
         createWorms(1);
     }, 1000);
 
-    let time = 30 * 1000; // clock param
     // moving all worms
     intervallID = setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
-        drawClock(time -= 10)
-        drawHearts(3);
-        drawCurrentTask()
+
+        timeForLvl -= 10
+        drawLevelAdditionals()
 
         worms.forEach((worm, index) => {
             if (worm.x > canvas.width + 250) {
@@ -185,15 +199,21 @@ function moveToXPosition(worms, winningWorm, index) {
     let targetYPos = winningWorm.y + 50
     let incY = 1;
 
+    // check if worm.y + 50 is outsid of canvas & move worm up
+    if(winningWorm.y + 50 > maxHeight) {
+        targetYPos = winningWorm.y - 50;
+        incY = -1;
+    }
+
     finishIntervalID = setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
-        drawCurrentTask()
-        drawHearts(3);
+        drawLevelAdditionals()
 
         worms.forEach(worm => {
             worm.updateWorm(worm.x += (worm.incX * 4), worm.y += worm.incY);
         })
 
+        // checl if all worms are outside the
         let allWorms = worms.every(worm => worm.x > canvas.width + worm.getWidth())
 
         const middleWorm = winningWorm.x + winningWorm.getWidth() / 2;
@@ -223,6 +243,14 @@ function moveToXPosition(worms, winningWorm, index) {
                 replay(winningWorm.x, winningWorm.y, winningWorm.getWidth())
                 if (onlyOnce) {
                     win = regexValidate(winningWorm.regex);
+
+                    if(win) {
+                        score++;
+                    }
+                    else {
+                        lives--;
+                    }
+
                     filter = win ? greenFilter : redFilter;
                     ctx.filter = filter;
                     onlyOnce = false;
@@ -230,6 +258,13 @@ function moveToXPosition(worms, winningWorm, index) {
             };
         }
     }, 10);
+}
+
+function drawLevelAdditionals() {
+    drawClock(timeForLvl)
+    drawHearts(lives);
+    drawCurrentTask()
+    drawScoreBoard(score);
 }
 
 // -------------------------------------
