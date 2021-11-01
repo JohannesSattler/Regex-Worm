@@ -30,7 +30,7 @@ const imageSources = ['./assets/body.png', './assets/head.png', './assets/leg1.p
     './assets/leg11.png', './assets/leg12.png', './assets/leg13.png', './assets/leg21.png', './assets/leg22.png',
     './assets/leg23.png', './assets/play.png', './assets/heart.png'
 ]
-const images = {}; 
+const images = {};
 
 // Load all the images before starting the Game 
 // Can be used like this: images.imageName
@@ -65,9 +65,11 @@ let intervallID = null;
 let spawningIntervallID = null;
 let finishIntervalID = null;
 
-let timeForLvl = 2 * 60 * 1000;
+let timeForLvl = 1.5 * 60 * 1000;
+const incTimer = 20;
 let lives = 3;
 let score = 0;
+const incScore = 10;
 
 // -------------------------------------
 //           LEVEL HANDLER
@@ -84,7 +86,6 @@ function start() {
 function selectLevel() {
     return levels[Math.floor(Math.random() * levels.length)]
 }
-
 
 // initialize winning or loosing screen
 function winingScreen(winningWorm, index) {
@@ -115,17 +116,17 @@ function clearLevel() {
     clearInterval(intervallID)
     clearInterval(spawningIntervallID)
     clearInterval(finishIntervalID)
-    
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.filter = grayFilter;
 
     worms = []
     replayState = false
     replyBut = {};
-    currentLevel = null;
+    currentLevel = selectLevel();
     intervallID = null;
     spawningIntervallID = null;
     finishIntervalID = null;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.filter = grayFilter;
 }
 
 // handles click event on Play button
@@ -135,11 +136,16 @@ function playNextLevel() {
 }
 
 function lostGame() {
-    timeForLvl = 30 * 1000;
-    score = 0;
+    timeForLvl = 1.5 * 60 * 1000;
     lives = 3;
+    currentLevel = selectLevel();
+    console.log("WHat", timeForLvl, score, lives)
     clearLevel()
-    start()
+    drawLooseScreen(score)
+}
+
+function wonGame() {
+    drawAddTimerSeconds(incTimer)
 }
 
 // Sets the test Cases
@@ -160,6 +166,12 @@ function updateMatchList() {
     })
 }
 
+function checkForLose() {
+    if(timeForLvl <= 0 || lives <= 0) {
+        lostGame()
+    }
+}
+
 // -------------------------------------
 //         DRAW MOVEMENT & LEVEL
 // -------------------------------------
@@ -174,8 +186,8 @@ function moveTheWorm() {
     // moving all worms
     intervallID = setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
-
         timeForLvl -= 10
+
         drawLevelAdditionals()
 
         worms.forEach((worm, index) => {
@@ -186,6 +198,7 @@ function moveTheWorm() {
             worm.updateWorm(worm.x += worm.incX, worm.y += worm.incY);
         })
 
+        checkForLose();
     }, 10);
 }
 
@@ -200,7 +213,7 @@ function moveToXPosition(worms, winningWorm, index) {
     let incY = 1;
 
     // check if worm.y + 50 is outsid of canvas & move worm up
-    if(winningWorm.y + 50 > maxHeight) {
+    if (winningWorm.y + 50 > maxHeight) {
         targetYPos = winningWorm.y - 50;
         incY = -1;
     }
@@ -240,14 +253,13 @@ function moveToXPosition(worms, winningWorm, index) {
             winningWorm.animStop = true;
             winningWorm.updateWorm(winningWorm.x, winningWorm.y)
             if (allWorms) {
-                replay(winningWorm.x, winningWorm.y, winningWorm.getWidth())
                 if (onlyOnce) {
                     win = regexValidate(winningWorm.regex);
 
-                    if(win) {
-                        score++;
-                    }
-                    else {
+                    if (win) {
+                        timeForLvl += incTimer * 1000; // add n seconds
+                        score += incScore;
+                    } else {
                         lives--;
                     }
 
@@ -255,8 +267,13 @@ function moveToXPosition(worms, winningWorm, index) {
                     ctx.filter = filter;
                     onlyOnce = false;
                 }
+
+                replay(winningWorm.x, winningWorm.y, winningWorm.getWidth())
+                if (win) wonGame()
             };
         }
+
+        checkForLose();
     }, 10);
 }
 

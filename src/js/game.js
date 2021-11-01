@@ -125,7 +125,7 @@ function drawClock(time) {
         }
         return number
     }
-    
+
     const text = makeTwoDigits(minutes) + ':' + makeTwoDigits(seconds)
 
     ctx.beginPath();
@@ -133,7 +133,17 @@ function drawClock(time) {
     ctx.textBaseline = "middle";
     ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
     ctx.textAlign = "center";
-    ctx.fillText(text, 100, 50);
+    ctx.fillText(text, 90, 50);
+    ctx.closePath();
+}
+
+function drawAddTimerSeconds(seconds) {
+    ctx.beginPath();
+    ctx.font = "20px Impact";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "rgba(79, 227, 106, 0.7)";
+    ctx.textAlign = "center";
+    ctx.fillText('+' + seconds, 155, 50);
     ctx.closePath();
 }
 
@@ -142,7 +152,7 @@ function drawHearts(amount) {
 
     ctx.beginPath();
     for (let i = 1; i <= amount; i++) {
-        ctx.drawImage(images.heart, 150 + xGab, 35, 30, 30);
+        ctx.drawImage(images.heart, 160 + xGab, 35, 30, 30);
         xGab += 30;
     }
     ctx.closePath()
@@ -153,8 +163,8 @@ function drawScoreBoard(score) {
     ctx.font = "25px Arial";
     ctx.textBaseline = "middle";
     ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-    ctx.textAlign = "center";
-    ctx.fillText('Score: ' + score, 350, 50);
+    ctx.textAlign = "right";
+    ctx.fillText('Score: ' + score, 450, 50);
     ctx.closePath();
 }
 
@@ -173,4 +183,23 @@ function drawCurrentTask() {
     ctx.textAlign = "center";
     ctx.fillText('Click on the worm with the best Regex', (canvas.width / 2), 90);
     ctx.closePath();
+}
+
+function drawLooseScreen(score) {
+    ctx.beginPath();
+    ctx.font = "40px Impact";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.textAlign = "center";
+    ctx.fillText("You Lost!", (canvas.width / 2), (canvas.height / 2));
+    ctx.closePath();
+    ctx.beginPath();
+    ctx.font = "20px Arial";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+    ctx.textAlign = "center";
+    ctx.fillText('Score: '+ score, (canvas.width / 2), (canvas.height / 2) + 40);
+    ctx.closePath();
+
+    replay((canvas.width / 2) + 10, (canvas.height / 2) + 110, 0)
 }
