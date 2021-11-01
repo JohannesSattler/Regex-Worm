@@ -1,9 +1,11 @@
+// -------------------------------------
+//           WORM SPAWNING
+// -------------------------------------
+
 function createWorms(amount) {
     sortWormsYposition(worms)
 
     for (let i = 0; i < amount; i++) {
-        let xOffset = Math.floor(Math.random() * (300 - 100) + 100)
-
         const worm = new Worm(-100, 0, 120);
 
         const regex = currentLevel.regex;
@@ -61,6 +63,10 @@ function getNextYposition(worms) {
     return position;
 }
 
+// -------------------------------------
+//        SELECTED WORM HANDLE
+// -------------------------------------
+
 // Got @getCursorPosition() from: https://stackoverflow.com/a/18053642/14548868
 function getCursorPosition(canvas, event) {
     const rect = canvas.getBoundingClientRect()
@@ -98,9 +104,13 @@ function getClickedWorm(x, y) {
         }
     })
 
-    if (!selectedWorm) return;
+    if (!selectedWorm) return [0, 0];
     return [selectedWorm, index];
 }
+
+// -------------------------------------
+//          OTHER DRAWINGS
+// -------------------------------------
 
 function drawClock(time) {
     const convertedTime = Number((time / 1000).toFixed(0));

@@ -1,5 +1,6 @@
-
-const regexes = ['[a-zA-Z]', '[a-z]', '[0-9]', '[what?]'];
+// -------------------------------------
+//              WORM
+// -------------------------------------
 
 class Worm {
     constructor(x, y, size) {
@@ -10,15 +11,13 @@ class Worm {
         this.incX = 2;
         this.incY = 0;
         this.animStop = false;
-        this.isRight = null;
-
-        const randIndex = Math.floor(Math.random() * regexes.length) 
-        this.regex = regexes[randIndex]
+        this.regex = null
     }
 
     getWidth() {
         return (this.regex.split('').length * 50) + this.size;
     }
+
     getHeight() {
         return this.size;
     }
@@ -34,8 +33,8 @@ class Worm {
     buildWorm() {
         let startPosX = 0;
 
-        for(let i = 0; i < this.regex.length; i++) {
-            const body = new BodyPart(this.x+startPosX, this.y, this.size)
+        for (let i = 0; i < this.regex.length; i++) {
+            const body = new BodyPart(this.x + startPosX, this.y, this.size)
             body.buildBody();
             body.letter = this.regex[i];
             body.xGab = startPosX;
@@ -45,42 +44,16 @@ class Worm {
         }
 
         // Create Head
-        const head = new Head(this.x+startPosX, this.y, this.size, this.regex);
-        head.buildBody();
-        head.xGab = startPosX;
-        this.bodyParts.push(head)
-    }
-
-    getCollision() {
-        return this.collisionBody;
-    }
-}
-
-class ReversedWorm extends Worm {
-    constructor(x, y, size) {
-        super(x, y, size)
-        this.incX = -2;
-    }
-
-    buildWorm() {
-        let startPosX = -200;
-
-        // Create Head
         const head = new Head(this.x + startPosX, this.y, this.size, this.regex);
         head.buildBody();
         head.xGab = startPosX;
         this.bodyParts.push(head)
-
-        for(let i = 5; i > 0; i--) {
-            const body = new BodyPart(this.x+startPosX, this.y, this.size)
-            body.buildBody();
-            body.xGab = startPosX;
-            body.yGab = 1;
-            startPosX += 50;
-            this.bodyParts.push(body)
-        }
     }
 }
+
+// -------------------------------------
+//              BODY
+// -------------------------------------
 
 class BodyPart {
     constructor(x, y, size, xGab, yGab) {
@@ -104,33 +77,35 @@ class BodyPart {
         this.buildBody()
     }
 
-    drawImage(image, x , y, size) {
+    drawImage(image, x, y, size) {
         ctx.beginPath();
         ctx.drawImage(image, x, y, size, size);
         ctx.closePath();
     }
-    
+
     getLeg(first = true) {
-        if(this.animStop) {
-            if(first) return images.leg12;
+        // stop leg animation
+        if (this.animStop) {
+            if (first) return images.leg12;
             return images.leg22
         }
 
-        if(this.lastLeg == 1) {
+        // select next leg
+        if (this.lastLeg == 1) {
             this.lastLeg = 2
-            if(first) return images.leg13;
+            if (first) return images.leg13;
             return images.leg23
         }
-        if(this.lastLeg == 2) {
+        if (this.lastLeg == 2) {
             this.lastLeg = 3
-            if(first) return images.leg12;
+            if (first) return images.leg12;
             return images.leg22
         }
-         if(this.lastLeg == 3) {
+        if (this.lastLeg == 3) {
             this.lastLeg = 1
-            if(first) return images.leg11;
+            if (first) return images.leg11;
             return images.leg21
-        } 
+        }
     }
 
     buildBody() {
@@ -142,18 +117,22 @@ class BodyPart {
         ctx.font = "bold 30px Verdana";
         ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
         ctx.textAlign = "center";
-        ctx.fillText(this.letter, this.x + (this.size/2)+5, this.y + (this.size/2));
+        ctx.fillText(this.letter, this.x + (this.size / 2) + 5, this.y + (this.size / 2));
         ctx.closePath()
 
         this.animCount++;
 
-        if(this.animCount == 10) {
+        if (this.animCount == 10) {
             this.leg2 = this.getLeg(false);
             this.leg1 = this.getLeg();
             this.animCount = 0;
         }
     }
 }
+
+// -------------------------------------
+//              HEAD
+// -------------------------------------
 
 class Head extends BodyPart {
     constructor(x, y, size, regex, xGab, yGab) {
@@ -162,8 +141,21 @@ class Head extends BodyPart {
     }
 
     buildBody() {
-        ctx.beginPath();
-        ctx.drawImage(images.head, this.x, this.y, this.size, this.size);
-        ctx.closePath();
+        this.animCount++;
+
+        if(this.animCount == 49) {
+            this.animCount = 0;
+        }
+
+        if (this.animCount > 25 && this.animCount < 50) {
+            ctx.beginPath();
+            ctx.drawImage(images.head, this.x-2, this.y, this.size, this.size);
+            ctx.closePath();
+        }
+        else {
+            ctx.beginPath();
+            ctx.drawImage(images.head, this.x, this.y, this.size, this.size);
+            ctx.closePath();
+        } 
     }
 }

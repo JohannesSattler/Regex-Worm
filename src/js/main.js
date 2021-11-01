@@ -1,3 +1,7 @@
+// -------------------------------------
+//          START - PARAMETERS
+// -------------------------------------
+
 const matchList = document.querySelector('#match > ul');
 const dontMatchList = document.querySelector('#no-match > ul');
 
@@ -18,14 +22,19 @@ const redFilter = 'hue-rotate(250deg) grayscale(0%) brightness(100%)'
 
 ctx.filter = grayFilter;
 
+// -------------------------------------
+//       Start - PRELOAD IMAGES
+// -------------------------------------
+
 const imageSources = ['./assets/body.png', './assets/head.png', './assets/leg1.png', './assets/leg2.png',
     './assets/leg11.png', './assets/leg12.png', './assets/leg13.png', './assets/leg21.png', './assets/leg22.png',
     './assets/leg23.png', './assets/play.png', './assets/heart.png'
 ]
-const images = {};
+const images = {}; 
 
-// Load all the images before starting the Game
+// Load all the images before starting the Game 
 // Can be used like this: images.imageName
+// inside window load event
 function loadAllImages() {
     imageSources.forEach((source, index) => {
         const image = new Image();
@@ -42,21 +51,83 @@ function loadAllImages() {
     })
 }
 
-loadAllImages();
+
+let worms = [];
 let currentLevel = null;
 
-let count = 0;
+let replayState = false;
+let replyBut = {};
 
+let intervallID = null;
+let spawningIntervallID = null;
+let finishIntervalID = null;
+
+// -------------------------------------
+//           LEVEL HANDLER
+// -------------------------------------
+
+// starts a random level
 function start() {
     currentLevel = selectLevel();
     updateMatchList();
     moveTheWorm()
 }
 
+// selects random level
 function selectLevel() {
     return levels[Math.floor(Math.random() * levels.length)]
 }
 
+
+// initialize winning or loosing screen
+function winingScreen(winningWorm, index) {
+    clearInterval(intervallID);
+    clearInterval(spawningIntervallID);
+
+    moveToXPosition(worms, winningWorm, index)
+    winningWorm.incX = 0;
+}
+
+// draws the replay button on top of worm
+// saves coordinates to @replyBut
+function replay(x, y, width) {
+    replayState = true;
+    ctx.beginPath()
+    ctx.drawImage(images.play, x + (width / 2) - 45, y - 50, 70, 70);
+    ctx.closePath();
+
+    replyBut = {
+        x: x + (width / 2) - 45,
+        y: y - 50,
+        w: 70
+    }
+}
+
+// clears everything in the vanvas
+function clearLevel() {
+    clearInterval(intervallID)
+    clearInterval(spawningIntervallID)
+    clearInterval(finishIntervalID)
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.filter = grayFilter;
+
+    worms = []
+    replayState = false
+    replyBut = {};
+    currentLevel = null;
+    intervallID = null;
+    spawningIntervallID = null;
+    finishIntervalID = null;
+}
+
+// handles click event on Play button
+function playNextLevel() {
+    clearLevel()
+    start()
+}
+
+// Sets the test Cases
 function updateMatchList() {
     matchList.innerText = ''
     dontMatchList.innerText = ''
@@ -74,21 +145,18 @@ function updateMatchList() {
     })
 }
 
-let worms = [];
+// -------------------------------------
+//              MOVEMENT
+// -------------------------------------
 
-
-
-let intervallID = null;
-let spawningIntervallID = null;
-
+// moves and spawns worms
 function moveTheWorm() {
-
     // spawning worms
     spawningIntervallID = setInterval(() => {
         createWorms(1);
     }, 1000);
 
-    let time = 30 * 1000;
+    let time = 30 * 1000; // clock param
     // moving all worms
     intervallID = setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -107,16 +175,8 @@ function moveTheWorm() {
     }, 10);
 }
 
-function winingScreen(winningWorm, index) {
-    clearInterval(intervallID);
-    clearInterval(spawningIntervallID);
-
-    moveToXPosition(worms, winningWorm, index)
-    winningWorm.incX = 0;
-}
-
-let finishIntervalID = null;
-
+// moves all worms that are not selected outside
+// & the selected in the middle
 function moveToXPosition(worms, winningWorm, index) {
     worms.splice(index, 1)
     let win, filter = null;
@@ -172,70 +232,11 @@ function moveToXPosition(worms, winningWorm, index) {
     }, 10);
 }
 
-let replayState = false;
-let replyButton = {};
+// -------------------------------------
+//              REGEX
+// -------------------------------------
 
-function replay(x, y, width) {
-    replayState = true;
-    ctx.beginPath()
-    ctx.drawImage(images.play, x + (width / 2) - 45, y - 50, 70, 70);
-    ctx.closePath();
-
-    replyBut = {
-        x: x + (width / 2) - 45,
-        y: y - 50,
-        w: 70
-    }
-}
-
-// Pause 
-window.addEventListener('blur', () => {
-    clearLevel()
-});
-
-// Play
-window.addEventListener('focus', () => {
-    playNextLevel()
-});
-
-canvas.addEventListener('mousedown', (e) => {
-    if (replayState) {
-        const cursor = getCursorPosition2(canvas, e)
-
-        if (cursor.x > replyBut.x && cursor.x < replyBut.x + replyBut.w) {
-            if (cursor.y > replyBut.y - replyBut.w && cursor.y < replyBut.y + replyBut.w) {
-                console.log('reeeeply');
-                playNextLevel();
-            }
-        }
-
-        return;
-    }
-    getCursorPosition(canvas, e)
-})
-
-function clearLevel() {
-    clearInterval(intervallID)
-    clearInterval(spawningIntervallID)
-    clearInterval(finishIntervalID)
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.filter = grayFilter;
-    worms = []
-    replayState = false
-    replyButton = {};
-    currentLevel = null;
-    count = 0;
-    intervallID = null;
-    spawningIntervallID = null;
-    finishIntervalID = null;
-}
-
-function playNextLevel() {
-    clearLevel()
-    start()
-}
-
-
+// Validates all test cases by regex
 function regexValidate(regex) {
     const match = Array.from(matchList.children);
     const dontMatch = Array.from(dontMatchList.children);
@@ -271,6 +272,7 @@ function regexValidate(regex) {
     return win;
 }
 
+// checks regex on a given string
 function checkRegex(regex, string) {
     let re = null;
 
@@ -287,3 +289,41 @@ function checkRegex(regex, string) {
         return false;
     }
 }
+
+// -------------------------------------
+//              EVENTS
+// -------------------------------------
+
+// add all event handlers
+window.addEventListener('load', () => {
+    // Load all images on start
+    loadAllImages()
+
+    // Pause 
+    window.addEventListener('blur', () => {
+        clearLevel()
+    });
+
+    // Play
+    window.addEventListener('focus', () => {
+        playNextLevel()
+    });
+
+    // handle click on canvas
+    canvas.addEventListener('mousedown', (e) => {
+        if (replayState) {
+            const cursor = getCursorPosition2(canvas, e)
+
+            if (cursor.x > replyBut.x && cursor.x < replyBut.x + replyBut.w) {
+                if (cursor.y > replyBut.y - replyBut.w && cursor.y < replyBut.y + replyBut.w) {
+                    console.log('reeeeply');
+                    playNextLevel();
+                }
+            }
+
+            return;
+        }
+
+        getCursorPosition(canvas, e)
+    })
+})
