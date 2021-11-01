@@ -35,6 +35,11 @@ class Worm {
 
         for (let i = 0; i < this.regex.length; i++) {
             const body = new BodyPart(this.x + startPosX, this.y, this.size)
+
+            if(i == 0) {
+                body.isLast = true;
+            }
+
             body.buildBody();
             body.letter = this.regex[i];
             body.xGab = startPosX;
@@ -66,9 +71,11 @@ class BodyPart {
 
         this.lastLeg = 1;
         this.animCount = 0;
-        this.leg2 = images.leg12
-        this.leg1 = images.leg22
         this.animStop = false;
+        this.leg2 = images.leg11
+        this.leg1 = images.leg22
+        this.tail = images.tail1
+        this.isLast = false;
     }
 
     updatePosition(x, y) {
@@ -83,36 +90,28 @@ class BodyPart {
         ctx.closePath();
     }
 
-    getLeg(first = true) {
-        // stop leg animation
-        if (this.animStop) {
-            if (first) return images.leg12;
-            return images.leg22
+    // gets the next image of a sequence between 1 - 3
+    getNextImage(image) {
+        const splitted = image.src.split('/')
+        const lastImage = splitted[splitted.length-1].split('.png')[0]
+        let lastIndex = Number(lastImage[lastImage.length-1])
+
+        if(lastIndex + 1 === 4) {
+            return lastImage.slice(0, lastImage.length-1) + 1
         }
 
-        // select next leg
-        if (this.lastLeg == 1) {
-            this.lastLeg = 2
-            if (first) return images.leg13;
-            return images.leg23
-        }
-        if (this.lastLeg == 2) {
-            this.lastLeg = 3
-            if (first) return images.leg12;
-            return images.leg22
-        }
-        if (this.lastLeg == 3) {
-            this.lastLeg = 1
-            if (first) return images.leg11;
-            return images.leg21
-        }
+        return lastImage.slice(0, lastImage.length-1) + (lastIndex + 1);
     }
 
     buildBody() {
         ctx.beginPath();
         ctx.drawImage(this.leg2, this.x, this.y, this.size, this.size);
-        ctx.drawImage(images.body, this.x, this.y, this.size, this.size);
         ctx.drawImage(this.leg1, this.x, this.y, this.size, this.size);
+        ctx.drawImage(images.body, this.x, this.y, this.size, this.size);
+
+        if(this.isLast) {
+            ctx.drawImage(this.tail, this.x, this.y, this.size, this.size);
+        }
 
         ctx.font = "bold 30px Verdana";
         ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
@@ -123,9 +122,13 @@ class BodyPart {
         this.animCount++;
 
         if (this.animCount == 10) {
-            this.leg2 = this.getLeg(false);
-            this.leg1 = this.getLeg();
+            this.leg1 = images[this.getNextImage(this.leg1)]
+            this.leg2 = images[this.getNextImage(this.leg2)]
             this.animCount = 0;
+        }
+        // fast wiggle
+        if (this.animCount % 3 == 0) {
+            this.tail = images[this.getNextImage(this.tail)]
         }
     }
 }
@@ -141,21 +144,32 @@ class Head extends BodyPart {
     }
 
     buildBody() {
-        this.animCount++;
+        console.log(this.animCount)
+/*        let incAnim = 1;
 
-        if(this.animCount == 49) {
-            this.animCount = 0;
+         if(this.animCount > 49) {
+            incAnim = -1;
+        }
+        if(this.animCount <= 0) {
+            incAnim = 1;
         }
 
-        if (this.animCount > 25 && this.animCount < 50) {
+ */
+        //this.animCount += incAnim;
+
+        ctx.beginPath();
+        ctx.drawImage(images.head, this.x, this.y, this.size, this.size);
+        ctx.closePath();
+
+/*         if (this.animCount > 25 && this.animCount < 50) {
             ctx.beginPath();
-            ctx.drawImage(images.head, this.x-2, this.y, this.size, this.size);
+            ctx.drawImage(images.head, this.x, this.y + this.animCount, this.size, this.size);
             ctx.closePath();
         }
         else {
             ctx.beginPath();
             ctx.drawImage(images.head, this.x, this.y, this.size, this.size);
             ctx.closePath();
-        } 
+        }  */
     }
 }

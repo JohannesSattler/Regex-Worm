@@ -28,7 +28,8 @@ ctx.filter = grayFilter;
 
 const imageSources = ['./assets/body.png', './assets/head.png', './assets/leg1.png', './assets/leg2.png',
     './assets/leg11.png', './assets/leg12.png', './assets/leg13.png', './assets/leg21.png', './assets/leg22.png',
-    './assets/leg23.png', './assets/play.png', './assets/heart.png'
+    './assets/leg23.png', './assets/play.png', './assets/heart.png', './assets/tail1.png', './assets/tail2.png', 
+    './assets/tail3.png'
 ]
 const images = {};
 
@@ -167,7 +168,7 @@ function updateMatchList() {
 }
 
 function checkForLose() {
-    if(timeForLvl <= 0 || lives <= 0) {
+    if (timeForLvl <= 0 || lives <= 0) {
         lostGame()
     }
 }
