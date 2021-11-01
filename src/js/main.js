@@ -188,6 +188,16 @@ function replay(x, y, width) {
     }
 }
 
+// Pause 
+window.addEventListener('blur', () => {
+    clearLevel()
+});
+
+// Play
+window.addEventListener('focus', () => {
+    playNextLevel()
+});
+
 canvas.addEventListener('mousedown', (e) => {
     if (replayState) {
         const cursor = getCursorPosition2(canvas, e)
@@ -205,6 +215,8 @@ canvas.addEventListener('mousedown', (e) => {
 })
 
 function clearLevel() {
+    clearInterval(intervallID)
+    clearInterval(spawningIntervallID)
     clearInterval(finishIntervalID)
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.filter = grayFilter;
