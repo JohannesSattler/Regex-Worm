@@ -8,14 +8,21 @@ function createWorms(amount) {
     for (let i = 0; i < amount; i++) {
         const worm = new Worm(-100, 0, 120);
 
-        const regex = currentLevel.regex;
-        const getRandom = regex[Math.floor(Math.random() * regex.length)]
+        const nextRegex = getNextRegex();
         worm.isRight = true;
 
-        worm.x = worm.x - (getRandom.length * 50 + 120);
-        worm.y = getNextYposition(worms, getRandom.length * 50 + 120)
+        // set worm heigt & width for spawning
+        worm.x = worm.x - (nextRegex.length * 50 + 120);
+        const nextY = getNextYposition(worms, nextRegex.length * 50 + 120)
+        worm.y = nextY;
 
-        worm.regex = getRandom;
+        // not a valid position found
+        if(nextY == -1) {
+            console.log('oh no there is no position')
+            return;
+        }
+
+        worm.regex = nextRegex;
         worm.buildWorm();
         worms.push(worm)
     }
@@ -44,22 +51,28 @@ function getNextYposition(worms) {
     // object of used Y positions that are at the start of the map
     let positions = []
 
+    // start: worm.x (-100) - width of worm
     worms.forEach(worm => {
-        if (worm.x < -100) {
+        if (worm.x < 0) {
             positions[worm.y] = 1;
         }
     })
 
     let step = 100;
+    const maxTrys = 3;
+    let trys = 0;
 
-    // Oh man this is dangerous :O
-    while (positions[position] !== undefined) {
+    // Oh man this is dangerous :O | hmm not so dangerous anymore?
+    // didnt calculated x range correctly
+    while (trys <= maxTrys && positions[position] !== undefined) {
         if (position + step > maxHeight) position -= step
         if (position - step < minHeight) position += step
 
         position += Math.random() > 0.5 ? step : -step;
+        trys++;
     }
-
+    
+    if(trys === 3) return -1;
     return position;
 }
 

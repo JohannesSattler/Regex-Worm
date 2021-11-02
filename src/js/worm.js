@@ -12,6 +12,8 @@ class Worm {
         this.incY = 0;
         this.animStop = false;
         this.regex = null
+
+        this.imgPrefix = '';
     }
 
     getWidth() {
@@ -40,6 +42,7 @@ class Worm {
                 body.isLast = true;
             }
 
+            body.updateSprites(this.imgPrefix);
             body.buildBody();
             body.letter = this.regex[i];
             body.xGab = startPosX;
@@ -50,6 +53,7 @@ class Worm {
 
         // Create Head
         const head = new Head(this.x + startPosX, this.y, this.size, this.regex);
+        head.updateSprites(this.imgPrefix);
         head.buildBody();
         head.xGab = startPosX;
         this.bodyParts.push(head)
@@ -72,10 +76,21 @@ class BodyPart {
         this.lastLeg = 1;
         this.animCount = 0;
         this.animStop = false;
+
+        this.body = images.body;
+        this.head = images.head;
         this.leg2 = images.leg11
         this.leg1 = images.leg22
         this.tail = images.tail1
         this.isLast = false;
+    }
+
+    updateSprites(prefix) {
+        this.body = images[prefix + 'body'];
+        this.head = images[prefix + 'head'];
+        this.leg2 = images[prefix + 'leg11']
+        this.leg1 = images[prefix + 'leg22']
+        this.tail = images[prefix + 'tail1']
     }
 
     updatePosition(x, y) {
@@ -109,7 +124,7 @@ class BodyPart {
 
     buildBody() {
         ctx.beginPath();
-        ctx.drawImage(images.body, this.x, this.y, this.size, this.size);
+        ctx.drawImage(this.body, this.x, this.y, this.size, this.size);
         ctx.drawImage(this.leg2, this.x, this.y, this.size, this.size);
         ctx.drawImage(this.leg1, this.x, this.y, this.size, this.size);
 
@@ -131,10 +146,6 @@ class BodyPart {
             this.tail = images[this.getNextImage(this.tail)]
             this.animCount = 0;
         }
-/*         // fast wiggle
-        if (this.animCount % 3 == 0) {
-            this.tail = images[this.getNextImage(this.tail)]
-        } */
     }
 }
 
@@ -150,7 +161,7 @@ class Head extends BodyPart {
 
     buildBody() {
         ctx.beginPath();
-        ctx.drawImage(images.head, this.x, this.y, this.size, this.size);
+        ctx.drawImage(this.head, this.x, this.y, this.size, this.size);
         ctx.closePath(); 
         this.animCount++;
     }

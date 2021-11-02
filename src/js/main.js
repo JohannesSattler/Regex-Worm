@@ -16,20 +16,24 @@ const maxHeight = canvas.height - 100
 
 const ctx = canvas.getContext('2d');
 
-const grayFilter = 'hue-rotate(0deg) grayscale(100%) brightness(100%)'
-const greenFilter = 'hue-rotate(0deg) grayscale(0%) brightness(100%)'
-const redFilter = 'hue-rotate(250deg) grayscale(0%) brightness(100%)'
-
-ctx.filter = grayFilter;
-
 // -------------------------------------
 //       Start - PRELOAD IMAGES
 // -------------------------------------
 
-const imageSources = ['./assets/body.png', './assets/head.png', './assets/leg1.png', './assets/leg2.png',
-    './assets/leg11.png', './assets/leg12.png', './assets/leg13.png', './assets/leg21.png', './assets/leg22.png',
-    './assets/leg23.png', './assets/play.png', './assets/heart.png', './assets/tail1.png', './assets/tail2.png',
-    './assets/tail3.png'
+const imageSources = [
+    './assets/heart.png', './assets/play.png',
+
+    './assets/gray-worm/body.png', './assets/gray-worm/head.png',
+    './assets/gray-worm/leg11.png', './assets/gray-worm/leg12.png', './assets/gray-worm/leg13.png', './assets/gray-worm/leg21.png', './assets/gray-worm/leg22.png',
+    './assets/gray-worm/leg23.png', './assets/gray-worm/tail1.png', './assets/gray-worm/tail2.png','./assets/gray-worm/tail3.png',
+    
+    './assets/green-worm/gbody.png', './assets/green-worm/ghead.png',
+    './assets/green-worm/gleg11.png', './assets/green-worm/gleg12.png', './assets/green-worm/gleg13.png', './assets/green-worm/gleg21.png', './assets/green-worm/gleg22.png',
+    './assets/green-worm/gleg23.png', './assets/green-worm/gtail1.png', './assets/green-worm/gtail2.png','./assets/green-worm/gtail3.png',
+
+    './assets/red-worm/rbody.png', './assets/red-worm/rhead.png',
+    './assets/red-worm/rleg11.png', './assets/red-worm/rleg12.png', './assets/red-worm/rleg13.png', './assets/red-worm/rleg21.png', './assets/red-worm/rleg22.png',
+    './assets/red-worm/rleg23.png', './assets/red-worm/rtail1.png', './assets/red-worm/rtail2.png','./assets/red-worm/rtail3.png',
 ]
 const images = {};
 
@@ -45,8 +49,8 @@ function loadAllImages() {
                 start();
             }
         }
-
-        const getName = source.split('/')[2].split('.png')[0];
+        const splitted = source.split('/');
+        const getName = splitted[splitted.length-1].split('.png')[0];
         console.log(getName)
         images[getName] = image;
     })
@@ -55,6 +59,12 @@ function loadAllImages() {
 // -------------------------------------
 //       GAME - Parameters
 // -------------------------------------
+
+let imagePrefix = ''; // '': gray | 'g': green | 'r': red worm
+
+const spawnIntervall = 1000;
+const movementIntervall = 10;
+let pause = false;
 
 let worms = [];
 let currentLevel = null;
@@ -100,8 +110,6 @@ function winingScreen(winningWorm, index) {
 // draws the replay button on top of worm
 // saves coordinates to @replyBut
 function replay(x, y, width, size = 70) {
-    replayState = true;
-
     ctx.beginPath()
     ctx.drawImage(images.play, x + (width / 2) - 45, y - 50, size, size);
     ctx.closePath();
@@ -128,7 +136,7 @@ function clearLevel() {
     finishIntervalID = null;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    ctx.filter = grayFilter;
+    imagePrefix = '';
 }
 
 // handles click event on Play button
@@ -137,15 +145,15 @@ function playNextLevel() {
     start()
 }
 
+// clear level and reset full game after lose
 function lostGame() {
     timeForLvl = 1.5 * 60 * 1000;
     lives = 3;
     currentLevel = selectLevel();
-    console.log("WHat", timeForLvl, score, lives)
     clearLevel()
     drawLooseScreen(score)
 }
-
+// won game. add + 20 seceonds
 function wonGame() {
     drawAddTimerSeconds(incTimer)
 }
@@ -182,25 +190,29 @@ function checkForLose() {
 function moveTheWorm() {
     // spawning worms
     spawningIntervallID = setInterval(() => {
-        createWorms(1);
+        if (!pause) {
+            createWorms(1);
+        }
     }, 1000);
 
     // moving all worms
     intervallID = setInterval(() => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        timeForLvl -= 20
+        if (!pause) { 
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            timeForLvl -= 10
 
-        drawLevelAdditionals()
+            drawLevelAdditionals()
+    
+            worms.forEach((worm, index) => {
+                if (worm.x > canvas.width + 250) {
+                    worms.splice(index, 1);
+                }
 
-        worms.forEach((worm, index) => {
-            if (worm.x > canvas.width + 250) {
-                worms.splice(index, 1);
-            }
-
-            worm.updateWorm(worm.x += worm.incX, worm.y += worm.incY);
-        })
-
-        checkForLose();
+                worm.updateWorm(worm.x += worm.incX, worm.y += worm.incY);
+            })
+    
+            checkForLose();
+        }
     }, 10);
 }
 
@@ -222,61 +234,66 @@ function moveToXPosition(worms, winningWorm, index) {
     }
 
     finishIntervalID = setInterval(() => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
-        drawLevelAdditionals()
-
-        worms.forEach(worm => {
-            worm.updateWorm(worm.x += (worm.incX * 4), worm.y += worm.incY);
-        })
-
-        // checl if all worms are outside the
-        let allWorms = worms.every(worm => worm.x > canvas.width + worm.getWidth())
-
-        const middleWorm = winningWorm.x + winningWorm.getWidth() / 2;
-        const isMiddle = middleWorm <= (canvas.width / 2) - 10 || middleWorm >= (canvas.width / 2) + 10;
-
-        const isRight = middleWorm <= (canvas.width / 2)
-        const isLeft = middleWorm >= (canvas.width / 2)
-
-        if (winningWorm.y === targetYPos) {
-            incY = 0;
-        }
-
-        if (isMiddle) {
-            if (isLeft) {
-                let inc = -2;
-                winningWorm.updateWorm(winningWorm.x += inc, winningWorm.y += incY)
-            } else if (isRight) {
-                let inc = 2;
-                winningWorm.updateWorm(winningWorm.x += inc, winningWorm.y += incY)
+        if(!pause) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            drawLevelAdditionals()
+            
+            worms.forEach(worm => {
+                worm.updateWorm(worm.x += (worm.incX * 4), worm.y += worm.incY);
+            })
+    
+            // checl if all worms are outside the
+            let allWorms = worms.every(worm => worm.x > canvas.width + worm.getWidth())
+    
+            const middleWorm = winningWorm.x + winningWorm.getWidth() / 2;
+            const isMiddle = middleWorm <= (canvas.width / 2) - 10 || middleWorm >= (canvas.width / 2) + 10;
+    
+            const isRight = middleWorm <= (canvas.width / 2)
+            const isLeft = middleWorm >= (canvas.width / 2)
+    
+            if (winningWorm.y === targetYPos) {
+                incY = 0;
             }
-
-            allWorms = false;
-        } else {
-            winningWorm.animStop = true;
-            winningWorm.updateWorm(winningWorm.x, winningWorm.y)
-            if (allWorms) {
-                if (onlyOnce) {
-                    win = regexValidate(winningWorm.regex);
-
-                    if (win) {
-                        timeForLvl += incTimer * 1000; // add n seconds
-                        score += incScore;
-                    } else {
-                        lives--;
-                    }
-
-                    filter = win ? greenFilter : redFilter;
-                    ctx.filter = filter;
-                    onlyOnce = false;
+    
+            if (isMiddle) {
+                if (isLeft) {
+                    let inc = -2;
+                    winningWorm.updateWorm(winningWorm.x += inc, winningWorm.y += incY)
+                } else if (isRight) {
+                    let inc = 2;
+                    winningWorm.updateWorm(winningWorm.x += inc, winningWorm.y += incY)
                 }
+                allWorms = false;
+            } else {
+                winningWorm.animStop = true;
+                winningWorm.updateWorm(winningWorm.x, winningWorm.y)
 
-                replay(winningWorm.x, winningWorm.y, winningWorm.getWidth())
-                if (win) wonGame()
-            };
+                if (allWorms) {
+                    if (onlyOnce) {
+                        win = regexValidate(winningWorm.regex);
+    
+                        if (win) {
+                            timeForLvl += incTimer * 1000; // add n seconds
+                            score += incScore;
+                        } else {
+                            lives--;
+                        }
+                        
+                        let imagePrefix = win ? 'g' : 'r';
+                        winningWorm.imgPrefix = imagePrefix;
+                        winningWorm.buildWorm();
+                        console.log(winningWorm.imgPrefix);
+
+                        replayState = true;
+                        onlyOnce = false;
+                    }
+    
+                    replay(winningWorm.x, winningWorm.y, winningWorm.getWidth())
+                    if (win) wonGame()
+                };
+            }
+            checkForLose();
         }
-
-        checkForLose();
     }, 10);
 }
 
@@ -290,6 +307,20 @@ function drawLevelAdditionals() {
 // -------------------------------------
 //              REGEX
 // -------------------------------------
+
+let regexIndex = 0;
+
+function getNextRegex() {
+    const regexes = currentLevel.regex;
+
+    if (regexIndex > regexes.length - 1) {
+        regexes.sort(() => .5 - Math.random()); // shuffle regexes
+        regexIndex = 0;
+        return regexes[regexIndex];
+    }
+
+    return regexes[regexIndex++]
+}
 
 // Validates all test cases by regex
 function regexValidate(regex) {
@@ -356,21 +387,28 @@ window.addEventListener('load', () => {
 
     // Pause 
     window.addEventListener('visibilitychange', () => {
-        clearLevel()
-        canvas.style.backgroundColor = 'rgba(0, 0, 0, 0.4)'
-        drawLevelAdditionals()
-        replay((canvas.width / 2) - 100 + 45, (canvas.height / 2), 0, 200)
+        if(!replayState) {
+            pause = true;
+            canvas.style.backgroundColor = 'rgba(0, 0, 0, 0.1)'
+            drawLevelAdditionals()
+            replay((canvas.width / 2) - 100 + 45, (canvas.height / 2), 0, 200)
+        }
     });
 
     // get click on play button
     canvas.addEventListener('mousedown', (e) => {
-        if (replayState) {
+        if(replayState || pause) {
             const cursor = getCursorPosition2(canvas, e)
 
             if (cursor.x > replyBut.x && cursor.x < replyBut.x + replyBut.w) {
                 if (cursor.y > replyBut.y - replyBut.w && cursor.y < replyBut.y + replyBut.w) {
-                    console.log('reeeeply');
-                    canvas.style = null
+                    console.log('reeeeplay');
+                    if(pause) {
+                        canvas.style = null
+                        pause = false;
+                        return;
+                    }
+                    replayState = false
                     playNextLevel();
                 }
             }
