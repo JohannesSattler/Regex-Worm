@@ -60,10 +60,9 @@ function loadAllImages() {
 //       GAME - Parameters
 // -------------------------------------
 
-let imagePrefix = ''; // '': gray | 'g': green | 'r': red worm
-
-const spawnIntervall = 1000;
-const movementIntervall = 10;
+// worm.buildWorm() should be called afterwards
+// '': gray worm | 'g': green worm | 'r': red worm
+let imagePrefix = '';
 let pause = false;
 
 let worms = [];

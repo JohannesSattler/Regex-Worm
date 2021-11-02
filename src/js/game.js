@@ -37,7 +37,7 @@ function sortWormsYposition(worms) {
     //worms.forEach(worm => console.log(worm.y))
 }
 
-function getNextYposition(worms) {
+function getNextYposition(worms, nextWidth) {
     if (!worms.length) return 100;
 
     // 0.1 - 0.5
@@ -53,17 +53,17 @@ function getNextYposition(worms) {
 
     // start: worm.x (-100) - width of worm
     worms.forEach(worm => {
-        if (worm.x < 0) {
+        if (-100 - nextWidth > worm.x - worm.getWidth()) {
             positions[worm.y] = 1;
         }
     })
 
     let step = 100;
-    const maxTrys = 3;
+    const maxTrys = 2;
     let trys = 0;
 
     // Oh man this is dangerous :O | hmm not so dangerous anymore?
-    // didnt calculated x range correctly
+    // didnt calculated x range correctly | does it work now? :(
     while (trys <= maxTrys && positions[position] !== undefined) {
         if (position + step > maxHeight) position -= step
         if (position - step < minHeight) position += step
@@ -72,7 +72,7 @@ function getNextYposition(worms) {
         trys++;
     }
     
-    if(trys === 3) return -1;
+    if(trys >= maxTrys) return -1;
     return position;
 }
 
