@@ -203,3 +203,9 @@ function drawLooseScreen(score) {
 
     replay((canvas.width / 2) + 10, (canvas.height / 2) + 110, 0)
 }
+
+function createPauseMenu() {
+    ctx.beginPath();
+    ctx.drawImage(images.play, (canvas.width / 2)-100, (canvas.height / 2)-100, 200, 200);
+    ctx.closePath()
+}

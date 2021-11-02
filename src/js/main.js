@@ -28,7 +28,7 @@ ctx.filter = grayFilter;
 
 const imageSources = ['./assets/body.png', './assets/head.png', './assets/leg1.png', './assets/leg2.png',
     './assets/leg11.png', './assets/leg12.png', './assets/leg13.png', './assets/leg21.png', './assets/leg22.png',
-    './assets/leg23.png', './assets/play.png', './assets/heart.png', './assets/tail1.png', './assets/tail2.png', 
+    './assets/leg23.png', './assets/play.png', './assets/heart.png', './assets/tail1.png', './assets/tail2.png',
     './assets/tail3.png'
 ]
 const images = {};
@@ -99,16 +99,17 @@ function winingScreen(winningWorm, index) {
 
 // draws the replay button on top of worm
 // saves coordinates to @replyBut
-function replay(x, y, width) {
+function replay(x, y, width, size = 70) {
     replayState = true;
+
     ctx.beginPath()
-    ctx.drawImage(images.play, x + (width / 2) - 45, y - 50, 70, 70);
+    ctx.drawImage(images.play, x + (width / 2) - 45, y - 50, size, size);
     ctx.closePath();
 
     replyBut = {
         x: x + (width / 2) - 45,
         y: y - 50,
-        w: 70
+        w: size
     }
 }
 
@@ -187,7 +188,7 @@ function moveTheWorm() {
     // moving all worms
     intervallID = setInterval(() => {
         ctx.clearRect(0, 0, canvas.width, canvas.height)
-        timeForLvl -= 10
+        timeForLvl -= 20
 
         drawLevelAdditionals()
 
@@ -210,6 +211,7 @@ function moveToXPosition(worms, winningWorm, index) {
     let win, filter = null;
     let onlyOnce = true;
 
+    // move worm down
     let targetYPos = winningWorm.y + 50
     let incY = 1;
 
@@ -353,16 +355,14 @@ window.addEventListener('load', () => {
     loadAllImages()
 
     // Pause 
-    window.addEventListener('blur', () => {
+    window.addEventListener('visibilitychange', () => {
         clearLevel()
+        canvas.style.backgroundColor = 'rgba(0, 0, 0, 0.4)'
+        drawLevelAdditionals()
+        replay((canvas.width / 2) - 100 + 45, (canvas.height / 2), 0, 200)
     });
 
-    // Play
-    window.addEventListener('focus', () => {
-        playNextLevel()
-    });
-
-    // handle click on canvas
+    // get click on play button
     canvas.addEventListener('mousedown', (e) => {
         if (replayState) {
             const cursor = getCursorPosition2(canvas, e)
@@ -370,6 +370,7 @@ window.addEventListener('load', () => {
             if (cursor.x > replyBut.x && cursor.x < replyBut.x + replyBut.w) {
                 if (cursor.y > replyBut.y - replyBut.w && cursor.y < replyBut.y + replyBut.w) {
                     console.log('reeeeply');
+                    canvas.style = null
                     playNextLevel();
                 }
             }

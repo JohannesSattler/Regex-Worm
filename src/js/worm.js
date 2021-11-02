@@ -96,6 +96,10 @@ class BodyPart {
         const lastImage = splitted[splitted.length-1].split('.png')[0]
         let lastIndex = Number(lastImage[lastImage.length-1])
 
+        if(this.animStop) {
+            return lastImage.slice(0, lastImage.length-1) + 2
+        }
+
         if(lastIndex + 1 === 4) {
             return lastImage.slice(0, lastImage.length-1) + 1
         }
@@ -105,9 +109,9 @@ class BodyPart {
 
     buildBody() {
         ctx.beginPath();
+        ctx.drawImage(images.body, this.x, this.y, this.size, this.size);
         ctx.drawImage(this.leg2, this.x, this.y, this.size, this.size);
         ctx.drawImage(this.leg1, this.x, this.y, this.size, this.size);
-        ctx.drawImage(images.body, this.x, this.y, this.size, this.size);
 
         if(this.isLast) {
             ctx.drawImage(this.tail, this.x, this.y, this.size, this.size);
@@ -124,12 +128,13 @@ class BodyPart {
         if (this.animCount == 10) {
             this.leg1 = images[this.getNextImage(this.leg1)]
             this.leg2 = images[this.getNextImage(this.leg2)]
+            this.tail = images[this.getNextImage(this.tail)]
             this.animCount = 0;
         }
-        // fast wiggle
+/*         // fast wiggle
         if (this.animCount % 3 == 0) {
             this.tail = images[this.getNextImage(this.tail)]
-        }
+        } */
     }
 }
 
@@ -144,32 +149,9 @@ class Head extends BodyPart {
     }
 
     buildBody() {
-        console.log(this.animCount)
-/*        let incAnim = 1;
-
-         if(this.animCount > 49) {
-            incAnim = -1;
-        }
-        if(this.animCount <= 0) {
-            incAnim = 1;
-        }
-
- */
-        //this.animCount += incAnim;
-
         ctx.beginPath();
         ctx.drawImage(images.head, this.x, this.y, this.size, this.size);
-        ctx.closePath();
-
-/*         if (this.animCount > 25 && this.animCount < 50) {
-            ctx.beginPath();
-            ctx.drawImage(images.head, this.x, this.y + this.animCount, this.size, this.size);
-            ctx.closePath();
-        }
-        else {
-            ctx.beginPath();
-            ctx.drawImage(images.head, this.x, this.y, this.size, this.size);
-            ctx.closePath();
-        }  */
+        ctx.closePath(); 
+        this.animCount++;
     }
 }
