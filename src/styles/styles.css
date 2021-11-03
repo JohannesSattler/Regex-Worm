@@ -46,6 +46,7 @@ body, html {
     background-color: aqua;
 }
 .bottom-left {
+    border-top: 4px solid tomato;
     width: 35%;
     background-color: rgb(71, 71, 71);
     padding: 20px;
@@ -54,7 +55,15 @@ body, html {
 .bottom-left * {
     padding: 5px;
 }
+
+.bottom-left h1 {
+    color: rgba(255, 255, 255, 0.6);
+    width: 100%;
+    border-bottom: 3px solid rgba(255, 255, 255, 0.6);
+}
+
 .bottom-right {
+    border-top: 4px solid tomato;
     width: 65%;
     background-color: rgb(29, 29, 29);
     padding: 20px;
@@ -145,8 +154,37 @@ body, html {
     
 }
 #match {
+    margin-left: 10px;
+    width: 50%;
+}
+#match h2 {
+    text-align: center;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+#no-match {
+    width: 50%;
     margin-left: 50px;
 }
-#no-match {
-    margin-left: 50px;
+#no-match h2 {
+    text-align: center;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.test-cases ul {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-direction: column;
+}
+.test-cases ul li {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.185);
+    margin-left: 0;
+    width: 100%;
+}
+.test-cases ul li img {
+    height: 15px;
 }

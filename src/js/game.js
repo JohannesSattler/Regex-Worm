@@ -88,7 +88,8 @@ function getCursorPosition(canvas, event) {
     console.log(x, y)
 
     const [selectedWorm, index] = getClickedWorm(x, y);
-    if (!selectedWorm) return;
+    if (!selectedWorm || wormSelected) return;
+    wormSelected = true;
     winingScreen(selectedWorm, index)
 }
 
@@ -181,7 +182,25 @@ function drawScoreBoard(score) {
     ctx.closePath();
 }
 
-function drawCurrentTask() {
+function drawCurrentTask(hardness='easy') {
+    // level hardness
+    const colorSelector = {
+        easy: "#60BF78",
+        normal: "#60ACBF",
+        hard: "#BF6060",
+        'very hard': "#8760B7" 
+    }
+    
+    const color = colorSelector[hardness] 
+
+    ctx.beginPath();
+    ctx.font = "20px Impact";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = color;
+    ctx.textAlign = "center";
+    ctx.fillText(hardness, (canvas.width / 2), 15);
+    ctx.closePath();
+    // mission
     ctx.beginPath();
     ctx.font = "40px Impact";
     ctx.textBaseline = "middle";
@@ -189,6 +208,7 @@ function drawCurrentTask() {
     ctx.textAlign = "center";
     ctx.fillText(currentLevel.mission, (canvas.width / 2), 50);
     ctx.closePath();
+    // click on worm text
     ctx.beginPath();
     ctx.font = "15px Arial";
     ctx.textBaseline = "middle";

@@ -21,7 +21,7 @@ const ctx = canvas.getContext('2d');
 // -------------------------------------
 
 const imageSources = [
-    './assets/heart.png', './assets/play.png',
+    './assets/heart.png', './assets/play.png','./assets/correct.png', './assets/wrong.png',
 
     './assets/gray-worm/body.png', './assets/gray-worm/head.png',
     './assets/gray-worm/leg11.png', './assets/gray-worm/leg12.png', './assets/gray-worm/leg13.png', './assets/gray-worm/leg21.png', './assets/gray-worm/leg22.png',
@@ -51,7 +51,6 @@ function loadAllImages() {
         }
         const splitted = source.split('/');
         const getName = splitted[splitted.length-1].split('.png')[0];
-        console.log(getName)
         images[getName] = image;
     })
 }
@@ -64,9 +63,6 @@ function loadAllImages() {
 // '': gray worm | 'g': green worm | 'r': red worm
 let imagePrefix = '';
 let pause = false;
-
-let worms = [];
-let currentLevel = null;
 
 let replayState = false;
 let replyBut = {};
@@ -81,20 +77,40 @@ let lives = 3;
 let score = 0;
 const incScore = 10;
 
+let worms = [];
+let levelIndex = 0;
+let currentLevel = selectLevel();
+
+let wormSelected = false;
 // -------------------------------------
 //           LEVEL HANDLER
 // -------------------------------------
 
 // starts a random level
 function start() {
-    currentLevel = selectLevel();
+    //currentLevel = selectLevel();
     updateMatchList();
     moveTheWorm()
 }
 
-// selects random level
+// selects random level with hardness based on score
 function selectLevel() {
-    return levels[Math.floor(Math.random() * levels.length)]
+    const hardness = getHardness(score);
+
+    if(levelIndex >= levels[hardness].length) {
+        levelIndex = 0;
+        return levels[hardness][0]
+    }
+
+    return levels[hardness][levelIndex++]
+}
+
+//hardness based on score
+function getHardness(score) {
+    if(score < 10) return 'easy'
+    else if(score >= 10 && score < 20) return 'normal'
+    else if(score >= 20 && score < 30) return 'hard'
+    else return 'very hard'
 }
 
 // initialize winning or loosing screen
@@ -146,12 +162,20 @@ function playNextLevel() {
 
 // clear level and reset full game after lose
 function lostGame() {
+    clearLevel()
     timeForLvl = 1.5 * 60 * 1000;
     lives = 3;
     currentLevel = selectLevel();
-    clearLevel()
+    replayState = true;
     drawLooseScreen(score)
 }
+
+function checkForLose() {
+    if (timeForLvl <= 0 || lives <= 0) {
+        lostGame()
+    }
+}
+
 // won game. add + 20 seceonds
 function wonGame() {
     drawAddTimerSeconds(incTimer)
@@ -165,20 +189,20 @@ function updateMatchList() {
     currentLevel.match.forEach(match => {
         const item = document.createElement('li');
         item.innerText = match;
+        const wrong = document.createElement('img');
+        wrong.src = './assets/wrong.png'
+        item.insertAdjacentElement('afterbegin', wrong)
         matchList.insertAdjacentElement('beforeend', item)
     })
 
     currentLevel.dontMatch.forEach(dontMatch => {
         const item = document.createElement('li');
         item.innerText = dontMatch;
+        const wrong = document.createElement('img');
+        wrong.src = './assets/wrong.png'
+        item.insertAdjacentElement('afterbegin', wrong)
         dontMatchList.insertAdjacentElement('beforeend', item)
     })
-}
-
-function checkForLose() {
-    if (timeForLvl <= 0 || lives <= 0) {
-        lostGame()
-    }
 }
 
 // -------------------------------------
@@ -187,14 +211,14 @@ function checkForLose() {
 
 // moves and spawns worms
 function moveTheWorm() {
-    // spawning worms
+    // spawns worms
     spawningIntervallID = setInterval(() => {
         if (!pause) {
             createWorms(1);
         }
     }, 1000);
 
-    // moving all worms
+    // moves all worms
     intervallID = setInterval(() => {
         if (!pause) { 
             ctx.clearRect(0, 0, canvas.width, canvas.height)
@@ -219,7 +243,7 @@ function moveTheWorm() {
 // & the selected in the middle
 function moveToXPosition(worms, winningWorm, index) {
     worms.splice(index, 1)
-    let win, filter = null;
+    let win = null;
     let onlyOnce = true;
 
     // move worm down
@@ -281,7 +305,6 @@ function moveToXPosition(worms, winningWorm, index) {
                         let imagePrefix = win ? 'g' : 'r';
                         winningWorm.imgPrefix = imagePrefix;
                         winningWorm.buildWorm();
-                        console.log(winningWorm.imgPrefix);
 
                         replayState = true;
                         onlyOnce = false;
@@ -299,7 +322,7 @@ function moveToXPosition(worms, winningWorm, index) {
 function drawLevelAdditionals() {
     drawClock(timeForLvl)
     drawHearts(lives);
-    drawCurrentTask()
+    drawCurrentTask(getHardness(score))
     drawScoreBoard(score);
 }
 
@@ -331,10 +354,10 @@ function regexValidate(regex) {
 
         const check = checkRegex(regex, string);
         if (check) {
-            li.style.color = '#66e35f'
+            li.querySelector('img').src = './assets/correct.png'
             return true;
         } else {
-            li.style.color = '#e35f5f'
+            li.querySelector('img').src = './assets/wrong.png'
             return false;
         }
     });
@@ -344,10 +367,10 @@ function regexValidate(regex) {
 
         const check = checkRegex(regex, string);
         if (check) {
-            li.style.color = '#e35f5f'
+            li.querySelector('img').src = './assets/wrong.png'
             return false;
         } else {
-            li.style.color = '#66e35f'
+            li.querySelector('img').src = './assets/correct.png'
             return true;
         }
     });
@@ -398,10 +421,9 @@ window.addEventListener('load', () => {
     canvas.addEventListener('mousedown', (e) => {
         if(replayState || pause) {
             const cursor = getCursorPosition2(canvas, e)
-
             if (cursor.x > replyBut.x && cursor.x < replyBut.x + replyBut.w) {
-                if (cursor.y > replyBut.y - replyBut.w && cursor.y < replyBut.y + replyBut.w) {
-                    console.log('reeeeplay');
+                if (cursor.y > replyBut.y - replyBut.w && cursor.y < replyBut.y + replyBut.w) {                                           
+                    wormSelected = false; // put worm selected to false
                     if(pause) {
                         canvas.style = null
                         pause = false;
