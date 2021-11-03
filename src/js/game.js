@@ -162,12 +162,12 @@ function drawAddTimerSeconds(seconds) {
 }
 
 function drawHearts(amount) {
-    let xGab = 20;
+    let xGab = 0;
 
     ctx.beginPath();
     for (let i = 1; i <= amount; i++) {
-        ctx.drawImage(images.heart, 160 + xGab, 35, 30, 30);
-        xGab += 30;
+        ctx.drawImage(images.heart, 180 + xGab, 35, 30, 30);
+        xGab += 38;
     }
     ctx.closePath()
 }
@@ -178,19 +178,17 @@ function drawScoreBoard(score) {
     ctx.textBaseline = "middle";
     ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
     ctx.textAlign = "right";
+
+    const answer = "Do I understand regex?".replace(/[?]/g, '?: No!')
+    console.log(answer)
+
+    
     ctx.fillText('Score: ' + score, 450, 50);
     ctx.closePath();
 }
 
 function drawCurrentTask(hardness='easy') {
-    // level hardness
-    const colorSelector = {
-        easy: "#60BF78",
-        normal: "#60ACBF",
-        hard: "#BF6060",
-        'very hard': "#8760B7" 
-    }
-    
+    // level hardness    
     const color = colorSelector[hardness] 
 
     ctx.beginPath();

@@ -18,11 +18,6 @@
 
             </div>
         </div>
-        <div id="level-selector">
-            <h1>G</h1>
-            <h1>A</h1>
-            <h1>Level Selector</h1>
-        </div>
         <div id="regex-container" style="display: none;">
             <input id="regex-input" placeholder="Put your Regex here" type="text">
             <select id="flags-input" type="text">
@@ -50,31 +45,40 @@
             </div>
         </div>
         <div class="bottom-right">
-            <h1>Title</h1>
-            <p>Basic Explain</p>
-            <h2><code>Selector</code></h2>
-            <h2>Explain</h2>
-            <p>
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quibusdam quam accusantium similique perspiciatis incidunt fuga 
-                voluptatum deserunt dignissimos. Eveniet fuga, est quidem consequuntur quaerat fugiat dolorem reprehenderit dolore officiis 
-                culpa quas non tempora incidunt dolor quia nihil laborum, qui nam quos! Cupiditate molestias incidunt, harum id at laudantium 
-                obcaecati in.
-            </p>
-            <h2>Examples</h2>
-            <ul>
-                <li>2</li>
-                <li>2</li>
-                <li>2</li>
-                <li>2</li>
+            <h1>Regex Cheat Sheet</h1>
+            <ul id="regex-cheat">
+                <div class="header color1">Character classes</div>
+                <li><code> . </code>any character except newline</li>
+                <li><code> \w \d \s </code> word, digit, whitespace</li>
+                <li><code> [abc] </code>any of a, b, or c</li>
+                <li><code> [^abc] </code>not a, b, or c</li>
+                <li><code> [a-g] </code>character between a & g</li>
+                <div class="header color2">Anchors</div>
+                <li><code> ^abc$ </code>start / end of the string</li>
+                <li><code> \b \B </code>word, not-word boundary</li>
+                <div class="header color3">Escaped characters</div>
+                <li><code> \. \* \\ </code>word, digit, whitespace</li>
+                <li><code> \t \n \r </code>tab, linefeed, carriage return</li>
+                <div class="header color4">Groups & Lookaroung</div>
+                <li><code> (abc) </code>capture group</li>
+                <li><code> \1 </code>backreference to group #1</li>
+                <li><code> (?:abc) </code>non-capturing groug</li>
+                <li><code> (?=abc) </code>positive lookahead</li>
+                <li><code> (?!abc) </code>negative lookahead</li>
+                <div class="header color5">Quantifiers & Alternation</div>
+                <li><code> a* a+ a? </code>0 or more, 1 or more, 0 or 1</li>
+                <li><code> a{5} a{2,} </code>exactly five, two or more</li>
+                <li><code> a{1,3} </code>between one & three</li>
+                <li><code> a+? a{2,}? </code>match as few as possible</li>
+                <li><code> ab|cd </code>match ab or cd</li>
             </ul>
-            <h2>Hints?</h2>
-            <p>
-                Lorem ipsum dolor, sit amet consectetur adipisicing elit. Quibusdam quam accusantium similique perspiciatis incidunt fuga 
-                voluptatum deserunt dignissimos. Eveniet fuga, est quidem consequuntur quaerat fugiat dolorem reprehenderit dolore officiis 
-                culpa quas non tempora incidunt dolor quia nihil laborum, qui nam quos! Cupiditate molestias incidunt, harum id at laudantium 
-                obcaecati in.
-            </p>
         </div>
+
+        <a class="github-holder" href="https://github.com/JohannesSattler/Regex-Worm" target="_blank">
+        </a>
+        <a href="https://github.com/JohannesSattler/Regex-Worm" target="_blank">
+            <img class="github-img" src="./assets/GitHub-Mark-Light-120px-plus.png" alt="">
+        </a>
     </div>
 
     <script src="./src/js/levels.js"></script>

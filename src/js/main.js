@@ -5,6 +5,9 @@
 const matchList = document.querySelector('#match > ul');
 const dontMatchList = document.querySelector('#no-match > ul');
 
+const leftBottomContainer = document.querySelector('.bottom-left');
+const rightBottomContainer = document.querySelector('.bottom-right');
+
 const canvas = document.getElementById('canvas');
 const canvasParent = document.getElementById('canvas-container');
 
@@ -77,6 +80,13 @@ let lives = 3;
 let score = 0;
 const incScore = 10;
 
+const colorSelector = {
+    easy: "#60BF78",
+    normal: "#60ACBF",
+    hard: "#BF6060",
+    'very hard': "#8760B7" 
+}
+
 let worms = [];
 let levelIndex = 0;
 let currentLevel = selectLevel();
@@ -96,7 +106,10 @@ function start() {
 // selects random level with hardness based on score
 function selectLevel() {
     const hardness = getHardness(score);
-
+    const color = colorSelector[hardness]
+    leftBottomContainer.style.borderTop = '4px solid ' + color
+    rightBottomContainer.style.borderTop = '4px solid ' + color
+    
     if(levelIndex >= levels[hardness].length) {
         levelIndex = 0;
         return levels[hardness][0]
