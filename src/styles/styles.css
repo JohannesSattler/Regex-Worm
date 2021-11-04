@@ -223,6 +223,7 @@ body, html {
 #regex-cheat li{
     display: flex;
     justify-content: flex-start;
+    flex-wrap: wrap;
     width: 30%;
     border-bottom: 1px solid rgba(255, 255, 255, 0.199);
 }
@@ -239,6 +240,22 @@ body, html {
     margin-bottom: 10px;
     margin-left: 30px;
     width: 30%;
+}
+
+.match-item {
+    margin: 0px;
+    margin-left: 1px;
+    padding: 1px;
+    white-space: pre;
+    min-width: 10px;
+    text-align: center;
+}
+
+.match-correct {
+    background-color: rgb(66, 146, 97);
+}
+.match-wrong {
+    background-color: rgb(145, 59, 59);
 }
 
 .color1 {
@@ -277,4 +294,12 @@ body, html {
 
 .github-holder:hover, .github-img:hover{
     cursor: pointer;
+}
+
+.hide-this {
+    font-size: 0;
+    height: 15px;
+    border-radius: 20px;
+    background-color: rgb(39, 39, 39);
+    margin-bottom: 10px;
 }

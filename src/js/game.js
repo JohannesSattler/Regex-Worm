@@ -179,9 +179,8 @@ function drawScoreBoard(score) {
     ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
     ctx.textAlign = "right";
 
-    const answer = "Do I understand regex?".replace(/[?]/g, '?: No!')
-    console.log(answer)
-
+/*     const answer = "Do I understand regex?".replace(/[?]/g, '?: No!')
+    console.log(answer) */
     
     ctx.fillText('Score: ' + score, 450, 50);
     ctx.closePath();

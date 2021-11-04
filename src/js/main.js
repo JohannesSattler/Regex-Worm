@@ -110,19 +110,46 @@ function selectLevel() {
     leftBottomContainer.style.borderTop = '4px solid ' + color
     rightBottomContainer.style.borderTop = '4px solid ' + color
     
-    if(levelIndex >= levels[hardness].length) {
+    // Change Visibility of cheat sheet
+    if( hardness === 'hard'|| hardness === 'very hard') {
+        cheatSheetVisibility(false) 
+    } 
+    else {
+        cheatSheetVisibility(true) 
+    }
+
+    const index = Math.floor(Math.random() * levels[hardness].length)
+    return levels[hardness][index]
+
+/*     if(levelIndex >= levels[hardness].length) {
         levelIndex = 0;
         return levels[hardness][0]
     }
 
-    return levels[hardness][levelIndex++]
+    return levels[hardness][levelIndex++] */
+}
+
+function cheatSheetVisibility(visible) {
+    const cheatSheet = document.querySelector('#regex-cheat');
+    const listItem = cheatSheet.querySelectorAll('li');
+    const listItemVisible = listItem[0].classList.contains('hide-this');
+
+    if(visible) {
+        if(listItemVisible) {
+            listItem.forEach(item => item.classList.remove('hide-this'))
+        }
+    } else {
+        if(!listItemVisible) {
+            listItem.forEach(item => item.classList.add('hide-this'))
+        }
+    }
 }
 
 //hardness based on score
 function getHardness(score) {
-    if(score < 10) return 'easy'
-    else if(score >= 10 && score < 20) return 'normal'
-    else if(score >= 20 && score < 30) return 'hard'
+    if(score < 20) return 'easy'
+    else if(score >= 20 && score < 30) return 'normal'
+    else if(score >= 30 && score < 40) return 'hard'
     else return 'very hard'
 }
 
@@ -194,6 +221,15 @@ function wonGame() {
     drawAddTimerSeconds(incTimer)
 }
 
+
+/* if(Math.random() > 0.5) {
+    span.classList.add('match-correct')
+} else {
+    span.classList.remove('match-wrong')
+    span.classList.add('match-wrong')
+} */
+
+
 // Sets the test Cases
 function updateMatchList() {
     matchList.innerText = ''
@@ -201,19 +237,41 @@ function updateMatchList() {
 
     currentLevel.match.forEach(match => {
         const item = document.createElement('li');
-        item.innerText = match;
+        //item.innerText = match;
         const wrong = document.createElement('img');
         wrong.src = './assets/wrong.png'
         item.insertAdjacentElement('afterbegin', wrong)
+
+        match.split('').forEach(char => {
+            const span = document.createElement('span');
+            span.classList.add('match-item')
+            span.innerText = char;
+            item.insertAdjacentElement('beforeend', span)
+        })
+
         matchList.insertAdjacentElement('beforeend', item)
     })
 
     currentLevel.dontMatch.forEach(dontMatch => {
         const item = document.createElement('li');
-        item.innerText = dontMatch;
+        //item.innerText = dontMatch;
         const wrong = document.createElement('img');
         wrong.src = './assets/wrong.png'
         item.insertAdjacentElement('afterbegin', wrong)
+
+        dontMatch.split('').forEach(char => {
+            const span = document.createElement('span');
+            span.classList.add('match-item')
+/*             if(Math.random() > 0.5) {
+                span.classList.add('match-correct')
+            } else {
+                span.classList.remove('match-wrong')
+                span.classList.add('match-wrong')
+            } */
+            span.innerText = char;
+            item.insertAdjacentElement('beforeend', span)
+        })
+
         dontMatchList.insertAdjacentElement('beforeend', item)
     })
 }
@@ -347,7 +405,7 @@ let regexIndex = 0;
 
 function getNextRegex() {
     const regexes = currentLevel.regex;
-
+    
     if (regexIndex > regexes.length - 1) {
         regexes.sort(() => .5 - Math.random()); // shuffle regexes
         regexIndex = 0;
@@ -357,13 +415,128 @@ function getNextRegex() {
     return regexes[regexIndex++]
 }
 
-// Validates all test cases by regex
+// refractor this please in the future
 function regexValidate(regex) {
     const match = Array.from(matchList.children);
     const dontMatch = Array.from(dontMatchList.children);
 
+    console.log(match.length);
+    const allListItemsMatch = [];
+    const isExactMatch = currentLevel.isExactMatch;
+
+    match.forEach(li => {
+        const allSpans = li.querySelectorAll('span');
+        const string = li.innerText.replaceAll('\n', '');
+
+        if(isExactMatch) {
+            const check = checkRegex(regex, string);
+
+            if(check) {
+                li.querySelector('img').src = './assets/correct.png'
+                allSpans.forEach(span => {
+                    span.classList.remove('match-wrong')
+                    span.classList.add('match-correct')
+                })
+                allListItemsMatch.push(true)
+            } else {
+                li.querySelector('img').src = './assets/wrong.png'
+                allSpans.forEach(span => {
+                    span.classList.remove('match-correct')
+                    span.classList.add('match-wrong')
+                })
+                allListItemsMatch.push(false)
+            }
+        }
+        else {
+            const allCorrect = []
+
+            allSpans.forEach(span => {
+                const check = checkRegex(regex, span.innerText);
+                console.log("Spasn result", span.innerText, check);
+    
+                if(check) {
+                    span.classList.remove('match-wrong')
+                    span.classList.add('match-correct')
+                    allCorrect.push(true)
+                } else {
+                    span.classList.remove('match-correct')
+                    span.classList.add('match-wrong')
+                    allCorrect.push(false)
+                }
+            })
+            const isCorrect = allCorrect.every(item => item == true)
+            allListItemsMatch.push(isCorrect)
+    
+            if (isCorrect) {
+                li.querySelector('img').src = './assets/correct.png'
+            } else {
+                li.querySelector('img').src = './assets/wrong.png'
+            }
+        }
+    })
+
+    dontMatch.forEach(li => {
+        const allSpans = li.querySelectorAll('span');
+        const string = li.innerText.replaceAll('\n', '');
+
+        if(isExactMatch) {
+            const check = checkRegex(regex, string);
+
+            if(!check) {
+                li.querySelector('img').src = './assets/correct.png'
+                allSpans.forEach(span => {
+                    span.classList.remove('match-wrong')
+                    span.classList.add('match-correct')
+                })
+                allListItemsMatch.push(true)
+            } else {
+                li.querySelector('img').src = './assets/wrong.png'
+                allSpans.forEach(span => {
+                    span.classList.remove('match-correct')
+                    span.classList.add('match-wrong')
+                })
+                allListItemsMatch.push(false)
+            }
+        }
+        else {
+            const allCorrect = []
+
+            allSpans.forEach(span => {
+                const check = checkRegex(regex, span.innerText);
+                console.log("Spasn result", span.innerText, check);
+    
+                if(!check) {
+                    span.classList.remove('match-wrong')
+                    span.classList.add('match-correct')
+                    allCorrect.push(true)
+                } else {
+                    span.classList.remove('match-correct')
+                    span.classList.add('match-wrong')
+                    allCorrect.push(false)
+                }
+            })
+            const isCorrect = allCorrect.every(item => item == true)
+            allListItemsMatch.push(isCorrect)
+            
+            if (isCorrect) {
+                li.querySelector('img').src = './assets/correct.png'
+            } else {
+                li.querySelector('img').src = './assets/wrong.png'
+            }
+        }
+    }) 
+
+    return allListItemsMatch.every(testCase => testCase == true)
+}
+
+// Validates all test cases by regex
+function regexValidate2(regex) {
+    const match = Array.from(matchList.children);
+    const dontMatch = Array.from(dontMatchList.children);
+
     const allMatch = match.map(li => {
-        const string = li.innerText;
+        const string = li.innerText.replaceAll('\n', '');
+        console.log(string);
 
         const check = checkRegex(regex, string);
         if (check) {
@@ -404,8 +577,8 @@ function checkRegex(regex, string) {
     }
 
     if (re) {
-        console.log(re.test(string))
-        return re.test(string)
+        const checker = re.test(string)
+        return checker
     } else {
         return false;
     }
