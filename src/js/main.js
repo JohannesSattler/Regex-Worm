@@ -405,7 +405,7 @@ let regexIndex = 0;
 
 function getNextRegex() {
     const regexes = currentLevel.regex;
-    
+
     if (regexIndex > regexes.length - 1) {
         regexes.sort(() => .5 - Math.random()); // shuffle regexes
         regexIndex = 0;

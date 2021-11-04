@@ -2,7 +2,7 @@ const levels = {
     easy: [
         {
             mission: 'Match only numbers',
-            regex: ['[0-9]', '0-9', '[0123456789]', '[1-9]', '\d', '/d', 'digits', 'num'],
+            regex: ['[0-9]', '0-9', '[0123456789]', '[1-9]', '\\d', '/d', 'digits', 'num'],
             match: ['1234', '35345', '32108943', '809342', '7812379', '123'],
             dontMatch: ['Im not a number', 'letter', '$%§&/"%&', '  space  ', '___'],
             isExactMatch: false
@@ -19,7 +19,7 @@ const levels = {
             mission: 'Match "Worm" or "Dog"',
             regex: ['[WormDog]', 'Worm or Dog', '^Cat', '{Worm/Dog}', 'Worm|Dog', 'Dog||Worm', '^Worm|Dog', '^Worm|Dog$'],
             match: ['Worm', 'Dog', 'WormDog', 'My Worm', 'Dogs are cute'],
-            dontMatch: ['Wrom Wrom', 'God', 'Not a W0rm', 'Not a D0g',  'Cats are cute'],
+            dontMatch: ['Wromm Wromm', 'God', 'Not a W0rm', 'Not a D0g',  'Cats are cute'],
             isExactMatch: true
         },
         {
@@ -29,6 +29,20 @@ const levels = {
             dontMatch: ['The', 'ßird', 'is', 'the',  'Word'],
             isExactMatch: true
         },
+        {
+            mission: 'Only allow letters, numbers & _',
+            regex: ['^[\\w]+$', '\\d\\w[_]', '[A-Z0-9_]', 'a-zA-z0-9', '[a-zA-z0-9_]', '[_a-zA-z0-9]', '.'],
+            match: ['Deadpool_2', 'my_folder', 'image_092', '123', 'A_Za_z0_9'],
+            dontMatch: ['Why?', '%&/§"(', '/R2D2/', 'my-folder',  'image092.png'],
+            isExactMatch: true
+        },
+        {
+            mission: 'Match any character except newline',
+            regex: ['[?=)(/&%$§"!A-Za-z0-9]', '.', '[A-Z0-9a-z!-?]', '\\all', '\\.', '\\any/', '.'],
+            match: ['abcde83782', 'A-Za-z0-9', '?=)(/&%$§"!', '1236789', 'ABCGHZ'],
+            dontMatch: ['\n\n'],
+            isExactMatch: false
+        },
     ],
 
     normal: [
@@ -36,21 +50,19 @@ const levels = {
             mission: 'Match exactly "Worm"',
             regex: ['{Worm}', 'Worm$', '^Worm$', '-Worm$', 'Worm:Worm', '[^Worm$]', '^Worm+$', 'Worm', '\Worm/'],
             match: ['Worm', 'Worm', 'Worm', 'Worm', 'Worm'],
-            dontMatch: ['Worms', 'MyWorms', 'Worming', 'Worms are awesome', 'awesome'],
+            dontMatch: ['Worms', 'MyWorms', 'Worming', 'Worms are..', 'awesome'],
             isExactMatch: true
         },
     ],
-
     hard: [
         {
             mission: 'Match exactly "Worm" or "Dog"',
             regex: ['{Worm}', '^Worm|Dog$', '^(Dog)|(Worm)$', 'Worm|Dog', '-Worm$', 'Worm:Worm', '[^Worm$]', '^Worm+$', 'Worm', '\Worm/'],
             match: ['Worm', 'WormWorm', 'DogWormDog', 'MyDogWorm', '!Worm'],
-            dontMatch: ['WorDogms', 'MyDogWorms', 'WoormDoogs', 'Worms & Dogs are awesome', '!Worm!'],
+            dontMatch: ['WorDogms', 'MyDogWorms', 'WoormDoogs', 'Worms & Dogs', '!Worm!'],
             isExactMatch: true
         }, 
     ],
-
     'very hard': [
         {
             mission: 'Match ending with "ing"',
