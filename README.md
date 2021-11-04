@@ -67,8 +67,9 @@ A game to learn regex in a fun way.
 ### Git
 URls for the project repo and deploy
 [Link Repo](https://github.com/JohannesSattler/Regex-Worm)
+
 [Link Deploy](https://johannessattler.github.io/Regex-Worm/)
 
 ### Slides
-URls for the project presentation (slides)
+[URls for the project presentation (slides)](https://docs.google.com/presentation/d/1Kx6Q25GRa5OdvBeGVBn7ZysOLUyqdvlJOKzcFGPGnA8/edit?usp=sharing)
 
