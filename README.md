@@ -1,6 +1,6 @@
 # Regex-Worm
 
-![Regex Worm](https://i.imgur.com/ncE1gA1.png)
+![Regex Worm](https://i.imgur.com/gekVT8K.png)
 
 Cick [here](https://johannessattler.github.io/Regex-Worm/) to play the game!
 
