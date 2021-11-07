@@ -110,6 +110,7 @@ function selectLevel() {
     leftBottomContainer.style.borderTop = '4px solid ' + color
     rightBottomContainer.style.borderTop = '4px solid ' + color
     
+    //return levels['normal'][2];
     // Change Visibility of cheat sheet
     if( hardness === 'hard'|| hardness === 'very hard') {
         cheatSheetVisibility(false) 
@@ -119,7 +120,6 @@ function selectLevel() {
     }
 
     const index = Math.floor(Math.random() * levels[hardness].length)
-    
     return levels[hardness][index]
 
 /*     if(levelIndex >= levels[hardness].length) {
@@ -408,8 +408,11 @@ function getNextRegex() {
     const regexes = currentLevel.regex;
 
     if (regexIndex > regexes.length - 1) {
-        regexes.sort(() => .5 - Math.random()); // shuffle regexes
         regexIndex = 0;
+    }
+
+    if(regexIndex === 0) {
+        regexes.sort(() => .5 - Math.random()); // shuffle regexes
         return regexes[regexIndex];
     }
 

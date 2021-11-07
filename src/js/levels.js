@@ -43,6 +43,13 @@ const levels = {
             dontMatch: ['\n\n'],
             isExactMatch: false
         },
+        {
+            mission: 'Match all ',
+            regex: ['[?=)(/&%$§"!A-Za-z0-9]', '.', '[A-Z0-9a-z!-?]', '\\all', '\\.', '\\any/', '.'],
+            match: ['abcde83782', 'A-Za-z0-9', '?=)(/&%$§"!', '1236789', 'ABCGHZ'],
+            dontMatch: ['\n\n'],
+            isExactMatch: false
+        },
     ],
 
     normal: [
@@ -51,6 +58,20 @@ const levels = {
             regex: ['{Worm}', 'Worm$', '^Worm$', '-Worm$', 'Worm:Worm', '[^Worm$]', '^Worm+$', 'Worm', '\Worm/'],
             match: ['Worm', 'Worm', 'Worm', 'Worm', 'Worm'],
             dontMatch: ['Worms', 'MyWorms', 'Worming', 'Worms are..', 'awesome'],
+            isExactMatch: true
+        },
+        {
+            mission: 'Match cat and cats with unlimited "s"',
+            regex: ['cat|s*', '[cats s]' , '(cat)s*', '(cat)(s)*', 'cats*', 'cat|cats', 'cat(s*)', 'cat(s)', 'cat|s|s|s|s'],
+            match: ['cats', 'catss', 'catsss', 'catsss', 'catssss'],
+            dontMatch: ['dogs', 'dooogs', 'cass', 'cast'],
+            isExactMatch: true
+        },
+        {
+            mission: 'Match one or more: a, b or c',
+            regex: ['[abc]+', '[abc]*' , '(abc)*', '[a]+[b]+[c]+', '([a-c])+', '[a-c]+', 'a*b*c*'],
+            match: ['aa', 'bb', 'ccaa', 'abbc', 'aaaabcc'],
+            dontMatch: ['123', 'ABCC'],
             isExactMatch: true
         },
     ],
