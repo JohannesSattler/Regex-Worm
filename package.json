@@ -1,0 +1,24 @@
+{
+  "name": "regex-worm",
+  "version": "1.0.0",
+  "description": "A game to learn regular expression.",
+  "main": "index.html",
+  "scripts": {
+    "start": "index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JohannesSattler/Regex-Worm.git"
+  },
+  "keywords": [
+    "Regex",
+    "Regular",
+    "expression"
+  ],
+  "author": "Johannes Sattler",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JohannesSattler/Regex-Worm/issues"
+  },
+  "homepage": "https://github.com/JohannesSattler/Regex-Worm#readme"
+}

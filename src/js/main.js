@@ -119,6 +119,7 @@ function selectLevel() {
     }
 
     const index = Math.floor(Math.random() * levels[hardness].length)
+    
     return levels[hardness][index]
 
 /*     if(levelIndex >= levels[hardness].length) {
@@ -420,7 +421,6 @@ function regexValidate(regex) {
     const match = Array.from(matchList.children);
     const dontMatch = Array.from(dontMatchList.children);
 
-    console.log(match.length);
     const allListItemsMatch = [];
     const isExactMatch = currentLevel.isExactMatch;
 
@@ -452,7 +452,6 @@ function regexValidate(regex) {
 
             allSpans.forEach(span => {
                 const check = checkRegex(regex, span.innerText);
-                console.log("Spasn result", span.innerText, check);
     
                 if(check) {
                     span.classList.remove('match-wrong')
@@ -503,7 +502,6 @@ function regexValidate(regex) {
 
             allSpans.forEach(span => {
                 const check = checkRegex(regex, span.innerText);
-                console.log("Spasn result", span.innerText, check);
     
                 if(!check) {
                     span.classList.remove('match-wrong')
@@ -536,7 +534,6 @@ function regexValidate2(regex) {
 
     const allMatch = match.map(li => {
         const string = li.innerText.replaceAll('\n', '');
-        console.log(string);
 
         const check = checkRegex(regex, string);
         if (check) {

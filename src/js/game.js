@@ -18,7 +18,6 @@ function createWorms(amount) {
 
         // not a valid position found
         if(nextY == -1) {
-            console.log('oh no there is no position')
             return;
         }
 
@@ -85,7 +84,6 @@ function getCursorPosition(canvas, event) {
     const rect = canvas.getBoundingClientRect()
     const x = event.clientX - rect.left
     const y = event.clientY - rect.top
-    console.log(x, y)
 
     const [selectedWorm, index] = getClickedWorm(x, y);
     if (!selectedWorm || wormSelected) return;
