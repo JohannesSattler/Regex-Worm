@@ -1,10 +1,13 @@
 # Regex-Worm
-![Regex Worm](https://imgur.com/a/J3oF4jc)
-[Play the game](https://johannessattler.github.io/Regex-Worm/)
+
+![Regex Worm](https://i.imgur.com/ncE1gA1.png)
+
+Cick [here](https://johannessattler.github.io/Regex-Worm/) to play the game!
 
 ## Description
 
-A game to learn regex in a fun way.
+Regex Worm is a game to learn and practice regular expression. 
+Just click on the worm that holds the right Regex.
 
 ## Links
 
@@ -17,5 +20,5 @@ A game to learn regex in a fun way.
 [Link Deploy](https://johannessattler.github.io/Regex-Worm/)
 
 ### Slides
-[URls for the project presentation (slides)](https://docs.google.com/presentation/d/1Kx6Q25GRa5OdvBeGVBn7ZysOLUyqdvlJOKzcFGPGnA8/edit?usp=sharing)
+[The project presentation](https://docs.google.com/presentation/d/1Kx6Q25GRa5OdvBeGVBn7ZysOLUyqdvlJOKzcFGPGnA8/edit?usp=sharing)
 
